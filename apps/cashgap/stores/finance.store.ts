@@ -107,6 +107,7 @@ interface FinanceState {
   setCurrency: (currency: string) => Promise<void>;
 
   // Bulk operations
+  clearAllData: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -354,6 +355,25 @@ export const useFinanceStore = create<FinanceState>()((set, get) => ({
     } else {
       set({ error: result.error || "Failed to update currency" });
       throw new Error(result.error || "Failed to update currency");
+    }
+  },
+
+  // Bulk operations
+  clearAllData: async () => {
+    const result = await apiRequest("/api/user/clear-all", {
+      method: "DELETE",
+    });
+
+    if (result.success) {
+      set({
+        incomes: [],
+        expenses: [],
+        subscriptions: [],
+        error: null,
+      });
+    } else {
+      set({ error: result.error || "Failed to clear all data" });
+      throw new Error(result.error || "Failed to clear all data");
     }
   },
 
