@@ -189,15 +189,42 @@ export default function RegisterPage() {
       email: string;
       password: string;
     }) => {
-      const result = await startRegistration(email, password, undefined);
-      if (!result.success) throw new Error("Registration failed");
-      addToast({
-        type: "success",
-        title: "Verification email sent!",
-        message: "Please check your inbox for the verification code",
-      });
-      setResendCountdown(60);
-      return result;
+      try {
+        const result = await startRegistration(email, password, undefined);
+
+        if (!result.success) {
+          // Use the specific error from the hook if available
+          throw new Error(error || "Registration failed. Please try again.");
+        }
+
+        addToast({
+          type: "success",
+          title: "Verification email sent!",
+          message: "Please check your inbox for the verification code",
+        });
+        setResendCountdown(60);
+        return result;
+      } catch (err) {
+        // Enhance error messages for common issues
+        if (err instanceof Error) {
+          if (err.message.includes("email") && err.message.includes("exists")) {
+            throw new Error(
+              "An account with this email already exists. Please sign in instead.",
+            );
+          } else if (
+            err.message.includes("network") ||
+            err.message.includes("fetch")
+          ) {
+            throw new Error(
+              "Unable to connect to server. Please check your internet connection.",
+            );
+          } else if (err.message.includes("timeout")) {
+            throw new Error("Request timed out. Please try again.");
+          }
+          throw err;
+        }
+        throw new Error("An unexpected error occurred. Please try again.");
+      }
     },
   };
 
@@ -293,21 +320,21 @@ export default function RegisterPage() {
         <Button
           type="button"
           variant="outline"
-          className="w-full h-12 text-base font-medium rounded-xl gap-3"
+          className="w-full h-12 rounded-xl gap-3"
           onClick={handleGoogleSignUp}
           isLoading={isGoogleLoading}
         >
-          <GoogleIcon className="h-5 w-5" />
+          {!isGoogleLoading && <GoogleIcon className="h-5 w-5" />}
           Continue with Google
         </Button>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+            <div className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white dark:bg-gray-900 px-4 text-gray-500 font-medium">
-              or create with email
+            <span className="px-4 bg-background text-muted-foreground">
+              Or create with email
             </span>
           </div>
         </div>
@@ -318,7 +345,10 @@ export default function RegisterPage() {
           <span className="text-muted-foreground">
             Already have an account?{" "}
           </span>
-          <Link href="/login" className="text-primary font-semibold">
+          <Link
+            href="/login"
+            className="text-primary font-semibold hover:underline"
+          >
             Sign in
           </Link>
         </div>

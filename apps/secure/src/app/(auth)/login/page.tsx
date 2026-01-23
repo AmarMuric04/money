@@ -135,26 +135,105 @@ function LoginContent() {
       email: string;
       password: string;
     }) => {
-      // fetch salt
-      const saltResponse = await fetch("/api/auth/salt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (!saltResponse.ok) throw new Error("Failed to fetch salt");
-      const { data: saltData } = await saltResponse.json();
-      const salt = saltData.salt;
-      const { authHash, encryptionKey } = await deriveKeys(password, salt);
-      const result = await signIn("credentials", {
-        email,
-        authHash,
-        redirect: false,
-      });
-      if (result?.error) throw new Error(result.error as string);
-      // persist encryption key
-      const exportedKey = await crypto.subtle.exportKey("jwk", encryptionKey);
-      sessionStorage.setItem("vault_key", JSON.stringify(exportedKey));
-      setEncryptionKey(encryptionKey);
+      try {
+        // Validate inputs first
+        if (!email || !password) {
+          throw new Error("Please enter both email and password.");
+        }
+
+        // Step 1: Fetch user's salt for key derivation
+        const saltResponse = await fetch("/api/auth/salt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        if (!saltResponse.ok) {
+          const errorData = await saltResponse.json().catch(() => ({}));
+
+          if (saltResponse.status === 400) {
+            // Bad request - likely validation error
+            throw new Error(errorData.message || "Invalid email format.");
+          } else if (saltResponse.status === 429) {
+            throw new Error("Too many attempts. Please try again later.");
+          } else if (saltResponse.status >= 500) {
+            throw new Error("Server error. Please try again later.");
+          } else if (errorData.message) {
+            throw new Error(errorData.message);
+          } else {
+            throw new Error(
+              "Unable to connect. Please check your connection and try again.",
+            );
+          }
+        }
+
+        const saltData = await saltResponse.json();
+        const salt = saltData?.data?.salt;
+
+        if (!salt) {
+          throw new Error(
+            "Unable to retrieve authentication data. Please try again.",
+          );
+        }
+
+        // Step 2: Derive authentication hash and encryption key
+        const { authHash, encryptionKey } = await deriveKeys(password, salt);
+
+        // Step 3: Sign in with credentials
+        const result = await signIn("credentials", {
+          email,
+          authHash,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          // Map NextAuth errors to user-friendly messages
+          const errorLower = result.error.toLowerCase();
+          
+          // Handle CSRF and session errors
+          if (errorLower.includes("csrf") || errorLower.includes("missingcsrf")) {
+            throw new Error("Session expired. Please refresh the page and try again.");
+          } else if (result.error === "CredentialsSignin") {
+            throw new Error("Invalid email or password. Please try again.");
+          } else if (result.error === "Configuration") {
+            throw new Error(
+              "Service temporarily unavailable. Please try again later.",
+            );
+          } else if (result.error === "AccessDenied") {
+            throw new Error("Access denied. Your account may be disabled.");
+          } else if (result.error === "Callback" || errorLower.includes("callback")) {
+            throw new Error("Authentication failed. Please try again.");
+          } else {
+            // Filter out any other technical errors
+            throw new Error("Login failed. Please try again.");
+          }
+        }
+
+        if (!result?.ok) {
+          throw new Error("Login failed. Please try again.");
+        }
+
+        // Step 4: Store encryption key for vault access
+        try {
+          const exportedKey = await crypto.subtle.exportKey(
+            "jwk",
+            encryptionKey,
+          );
+          sessionStorage.setItem("vault_key", JSON.stringify(exportedKey));
+          setEncryptionKey(encryptionKey);
+        } catch (err) {
+          console.error("Failed to store encryption key:", err);
+          throw new Error(
+            "Failed to set up secure vault. Please try logging in again.",
+          );
+        }
+      } catch (err) {
+        // Re-throw with clear error message
+        if (err instanceof Error) {
+          throw err;
+        }
+        throw new Error("An unexpected error occurred. Please try again.");
+      }
     },
   };
 
@@ -166,24 +245,26 @@ function LoginContent() {
           <p className="text-muted-foreground">Sign in to access your vault</p>
         </div>
 
-        <div>
-          <button
-            type="button"
-            className="w-full h-12 rounded-xl border px-3 flex items-center justify-center gap-3"
-            onClick={handleGoogleLogin}
-            disabled={isGoogleLoading}
-          >
-            {isGoogleLoading ? (
-              <Spinner className="h-5 w-5" />
-            ) : (
-              <GoogleIcon className="h-5 w-5" />
-            )}
-            Continue with Google
-          </button>
-        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full h-12 rounded-xl gap-3"
+          onClick={handleGoogleLogin}
+          isLoading={isGoogleLoading}
+        >
+          {!isGoogleLoading && <GoogleIcon className="h-5 w-5" />}
+          Continue with Google
+        </Button>
 
-        <div className="text-center text-sm text-muted-foreground">
-          or continue with email
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-4 bg-background text-muted-foreground">
+              Or continue with email
+            </span>
+          </div>
         </div>
 
         <LoginForm adapter={adapter} onSuccess={() => router.push("/vault")} />
@@ -192,7 +273,10 @@ function LoginContent() {
           <span className="text-muted-foreground">
             Don&apos;t have an account?{" "}
           </span>
-          <Link href="/register" className="text-primary font-semibold">
+          <Link
+            href="/register"
+            className="text-primary font-semibold hover:underline"
+          >
             Create one
           </Link>
         </div>

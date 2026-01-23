@@ -52,7 +52,19 @@ export function useAuthFlow(): UseAuthFlowReturn {
         });
 
         if (!saltResponse.ok) {
-          setError("Failed to fetch authentication data");
+          const errorData = await saltResponse.json().catch(() => ({}));
+
+          if (saltResponse.status === 404) {
+            setError("Account not found. Please check your email or sign up.");
+          } else if (saltResponse.status === 429) {
+            setError("Too many login attempts. Please try again later.");
+          } else if (saltResponse.status >= 500) {
+            setError("Server error. Please try again in a moment.");
+          } else if (errorData.message) {
+            setError(errorData.message);
+          } else {
+            setError("Unable to connect. Please check your connection.");
+          }
           setIsLoading(false);
           return false;
         }
@@ -61,7 +73,7 @@ export function useAuthFlow(): UseAuthFlowReturn {
         const salt = saltData.data?.salt;
 
         if (!salt) {
-          setError("Invalid authentication data");
+          setError("Unable to retrieve login information. Please try again.");
           setIsLoading(false);
           return false;
         }
@@ -82,7 +94,27 @@ export function useAuthFlow(): UseAuthFlowReturn {
         const result = await authStore.login(email, authHash);
 
         if (!result.success) {
-          setError(authStore.error || "Login failed");
+          const errorMsg = authStore.error || "Login failed";
+
+          // Provide more specific error messages
+          if (
+            errorMsg.includes("credentials") ||
+            errorMsg.includes("password")
+          ) {
+            setError("Incorrect email or master password. Please try again.");
+          } else if (
+            errorMsg.includes("disabled") ||
+            errorMsg.includes("suspended")
+          ) {
+            setError("Your account has been disabled. Please contact support.");
+          } else if (
+            errorMsg.includes("verified") ||
+            errorMsg.includes("verification")
+          ) {
+            setError("Please verify your email address before logging in.");
+          } else {
+            setError(errorMsg);
+          }
           return false;
         }
 
@@ -93,20 +125,60 @@ export function useAuthFlow(): UseAuthFlowReturn {
         }
 
         // Step 4: Set up vault with encryption key
-        vaultStore.setEncryptionKey(encryptionKey);
+        try {
+          vaultStore.setEncryptionKey(encryptionKey);
 
-        // Save to sessionStorage so it survives page refresh
-        const exportedKey = await crypto.subtle.exportKey("jwk", encryptionKey);
-        sessionStorage.setItem("vault_key", JSON.stringify(exportedKey));
+          // Save to sessionStorage so it survives page refresh
+          const exportedKey = await crypto.subtle.exportKey(
+            "jwk",
+            encryptionKey,
+          );
+          sessionStorage.setItem("vault_key", JSON.stringify(exportedKey));
+        } catch (err) {
+          console.error("Failed to store encryption key:", err);
+          setError("Failed to set up secure vault. Please try again.");
+          setIsLoading(false);
+          return false;
+        }
 
         // Step 5: Fetch and decrypt vault
-        await vaultStore.fetchVault();
+        try {
+          await vaultStore.fetchVault();
+        } catch (err) {
+          console.error("Failed to fetch vault:", err);
+          setError(
+            "Failed to load your vault. Your session is active but vault data is unavailable.",
+          );
+          // Don't return false - user is logged in, just can't see vault yet
+        }
 
         setIsLoading(false);
         return true;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "An error occurred";
+        console.error("Login error:", err);
+
+        // Provide user-friendly error messages
+        let message = "An unexpected error occurred";
+
+        if (err instanceof Error) {
+          if (
+            err.message.includes("network") ||
+            err.message.includes("fetch")
+          ) {
+            message = "Network error. Please check your internet connection.";
+          } else if (err.message.includes("timeout")) {
+            message = "Request timed out. Please try again.";
+          } else if (
+            err.message.includes("crypto") ||
+            err.message.includes("key")
+          ) {
+            message =
+              "Encryption error. Your browser may not support required security features.";
+          } else {
+            message = err.message;
+          }
+        }
+
         setError(message);
         setIsLoading(false);
         return false;
@@ -173,7 +245,20 @@ export function useAuthFlow(): UseAuthFlowReturn {
         const result = await response.json();
 
         if (!response.ok) {
-          setError(result.message || "Failed to send verification email");
+          // Provide specific error messages based on status code
+          if (response.status === 409) {
+            setError(
+              "An account with this email already exists. Please sign in instead.",
+            );
+          } else if (response.status === 429) {
+            setError("Too many registration attempts. Please try again later.");
+          } else if (response.status >= 500) {
+            setError("Server error. Please try again in a moment.");
+          } else if (result.message) {
+            setError(result.message);
+          } else {
+            setError("Failed to send verification email. Please try again.");
+          }
           setIsLoading(false);
           return { success: false };
         }
@@ -189,8 +274,30 @@ export function useAuthFlow(): UseAuthFlowReturn {
         setIsLoading(false);
         return { success: true, token: result.data.token };
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "An error occurred";
+        console.error("Registration error:", err);
+
+        // Provide user-friendly error messages
+        let message = "Failed to start registration";
+
+        if (err instanceof Error) {
+          if (
+            err.message.includes("network") ||
+            err.message.includes("fetch")
+          ) {
+            message = "Network error. Please check your internet connection.";
+          } else if (err.message.includes("timeout")) {
+            message = "Request timed out. Please try again.";
+          } else if (
+            err.message.includes("crypto") ||
+            err.message.includes("key")
+          ) {
+            message =
+              "Encryption setup failed. Your browser may not support required security features.";
+          } else {
+            message = err.message;
+          }
+        }
+
         setError(message);
         setIsLoading(false);
         return { success: false };
@@ -226,7 +333,35 @@ export function useAuthFlow(): UseAuthFlowReturn {
         const result = await response.json();
 
         if (!response.ok) {
-          setError(result.message || "Verification failed");
+          // Provide specific error messages
+          if (response.status === 400) {
+            if (
+              result.message?.includes("invalid") ||
+              result.message?.includes("incorrect")
+            ) {
+              setError(
+                "Invalid verification code. Please check and try again.",
+              );
+            } else if (result.message?.includes("expired")) {
+              setError(
+                "Verification code has expired. Please request a new one.",
+              );
+            } else {
+              setError(result.message || "Verification failed");
+            }
+          } else if (response.status === 404) {
+            setError(
+              "Verification request not found. Please start registration again.",
+            );
+          } else if (response.status === 429) {
+            setError(
+              "Too many verification attempts. Please wait and try again.",
+            );
+          } else {
+            setError(
+              result.message || "Verification failed. Please try again.",
+            );
+          }
           setIsLoading(false);
           return false;
         }
