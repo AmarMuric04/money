@@ -267,27 +267,31 @@ export default function ExpensesPage() {
             </CollapsibleTrigger>
             <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
-                {(Object.keys(categoryConfig) as ExpenseCategory[]).map((cat) => {
-                  const config = categoryConfig[cat];
-                  const amount = expensesByCategory[cat] || 0;
-                  const Icon = config.icon;
-                  return (
-                    <div
-                      key={cat}
-                      className="p-4 rounded-2xl border bg-card shadow-sm text-center"
-                    >
+                {(Object.keys(categoryConfig) as ExpenseCategory[]).map(
+                  (cat) => {
+                    const config = categoryConfig[cat];
+                    const amount = expensesByCategory[cat] || 0;
+                    const Icon = config.icon;
+                    return (
                       <div
-                        className={`h-10 w-10 rounded-xl ${config.bg} flex items-center justify-center mx-auto mb-2`}
+                        key={cat}
+                        className="p-4 rounded-2xl border bg-card shadow-sm text-center"
                       >
-                        <Icon className={`h-5 w-5 ${config.color}`} />
+                        <div
+                          className={`h-10 w-10 rounded-xl ${config.bg} flex items-center justify-center mx-auto mb-2`}
+                        >
+                          <Icon className={`h-5 w-5 ${config.color}`} />
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          {config.label}
+                        </p>
+                        <p className="font-semibold">
+                          {formatCurrency(amount)}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1">
-                        {config.label}
-                      </p>
-                      <p className="font-semibold">{formatCurrency(amount)}</p>
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </div>
             </CollapsibleContent>
           </Collapsible>

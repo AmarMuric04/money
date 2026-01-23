@@ -210,7 +210,9 @@ export default function SubscriptionsPage() {
               icon={<CreditCard className="h-5 w-5 text-orange-500" />}
               title="All Subscriptions"
               count={subscriptions.length}
-              countLabel={subscriptions.length === 1 ? "subscription" : "subscriptions"}
+              countLabel={
+                subscriptions.length === 1 ? "subscription" : "subscriptions"
+              }
             />
             <div className="space-y-3">
               {subscriptions.map((subscription: Subscription) => (

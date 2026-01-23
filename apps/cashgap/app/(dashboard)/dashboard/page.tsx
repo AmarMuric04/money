@@ -216,7 +216,10 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {/* Recent Transactions - Collapsible */}
         <Card className="p-6">
-          <Collapsible open={transactionsOpen} onOpenChange={setTransactionsOpen}>
+          <Collapsible
+            open={transactionsOpen}
+            onOpenChange={setTransactionsOpen}
+          >
             <CollapsibleTrigger asChild>
               <button className="flex items-center gap-3 w-full group mb-4">
                 <div className="flex items-center gap-2">
@@ -225,7 +228,10 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1 h-px bg-border" />
                 <span className="text-sm text-muted-foreground font-medium">
-                  {recentTransactions.length} {recentTransactions.length === 1 ? "transaction" : "transactions"}
+                  {recentTransactions.length}{" "}
+                  {recentTransactions.length === 1
+                    ? "transaction"
+                    : "transactions"}
                 </span>
                 <ChevronDown
                   className={cn(
@@ -291,11 +297,14 @@ export default function DashboardPage() {
               <button className="flex items-center gap-3 w-full group mb-4">
                 <div className="flex items-center gap-2">
                   <PieChart className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Spending by Category</h3>
+                  <h3 className="text-lg font-semibold">
+                    Spending by Category
+                  </h3>
                 </div>
                 <div className="flex-1 h-px bg-border" />
                 <span className="text-sm text-muted-foreground font-medium">
-                  {spendingByCategory.length} {spendingByCategory.length === 1 ? "category" : "categories"}
+                  {spendingByCategory.length}{" "}
+                  {spendingByCategory.length === 1 ? "category" : "categories"}
                 </span>
                 <ChevronDown
                   className={cn(
@@ -324,24 +333,28 @@ export default function DashboardPage() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {spendingByCategory.map(({ category, amount, percentage }) => (
-                    <div key={category}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>{categoryConfig[category]?.label || category}</span>
-                        <span className="font-semibold">
-                          {formatAmount(amount)}
-                        </span>
+                  {spendingByCategory.map(
+                    ({ category, amount, percentage }) => (
+                      <div key={category}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>
+                            {categoryConfig[category]?.label || category}
+                          </span>
+                          <span className="font-semibold">
+                            {formatAmount(amount)}
+                          </span>
+                        </div>
+                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${
+                              categoryConfig[category]?.color || "bg-gray-600"
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            categoryConfig[category]?.color || "bg-gray-600"
-                          }`}
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               )}
             </CollapsibleContent>
