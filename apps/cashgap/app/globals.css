@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Include shared UI package for Tailwind scanning */
+@source "../../packages/ui/src";
+@source "../../packages/auth/src";
+
 @source "../../../packages/ui/src";
 
 @custom-variant dark (&:is(.dark *));

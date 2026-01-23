@@ -1,6 +1,10 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
+    "skipLibCheck": true,
+    "isolatedModules": false,
+    "declaration": false,
+    "declarationMap": false,
     "plugins": [
       {
         "name": "next"

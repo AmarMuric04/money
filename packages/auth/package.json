@@ -1,0 +1,22 @@
+{
+  "name": "@repo/auth",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./login": "./src/login.tsx",
+    "./register": "./src/register.tsx",
+    "./layout": "./src/auth-layout.tsx",
+    "./use-auth": "./src/use-auth.ts"
+  },
+  "dependencies": {
+    "@repo/ui": "workspace:*",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^5"
+  }
+}

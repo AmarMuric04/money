@@ -5,24 +5,28 @@ import { TrendingUp, Plus, DollarSign, Calendar, Clock } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
 import { formatCurrency } from "@/lib/utils";
-import { useFinanceStore, type Income } from "@/stores";
-import { useHydration } from "@/hooks";
+import { useDashboardData } from "@/hooks";
+import type { Income } from "@/stores";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export default function IncomePage() {
-  const isHydrated = useHydration();
-  const { incomes } = useFinanceStore();
+  const { data, isLoading } = useDashboardData();
+  const incomes = data?.incomes ?? [];
 
   // Calculate totals
-  const totalIncome = incomes.reduce((sum, i) => sum + i.amount, 0);
+  const totalIncome = incomes.reduce(
+    (sum: number, i: Income) => sum + i.amount,
+    0,
+  );
   const monthlyIncome = incomes
-    .filter((i) => i.frequency === "monthly")
-    .reduce((sum, i) => sum + i.amount, 0);
+    .filter((i: Income) => i.frequency === "monthly")
+    .reduce((sum: number, i: Income) => sum + i.amount, 0);
   const yearlyIncome = incomes
-    .filter((i) => i.frequency === "yearly")
-    .reduce((sum, i) => sum + i.amount, 0);
+    .filter((i: Income) => i.frequency === "yearly")
+    .reduce((sum: number, i: Income) => sum + i.amount, 0);
 
   // Loading skeleton
-  if (!isHydrated) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <DashboardWrapper className="space-y-8">
@@ -149,9 +153,14 @@ export default function IncomePage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Income Sources</h2>
+            <SectionHeader
+              icon={<TrendingUp className="h-5 w-5 text-green-500" />}
+              title="Income Sources"
+              count={incomes.length}
+              countLabel={incomes.length === 1 ? "source" : "sources"}
+            />
             <div className="space-y-3">
-              {incomes.map((income) => (
+              {incomes.map((income: Income) => (
                 <IncomeCard key={income.id} income={income} />
               ))}
             </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 // ============================================================================
 // Types
@@ -72,171 +71,294 @@ interface FinanceState {
   subscriptions: Subscription[];
   currency: string;
 
+  // Loading states
+  isLoading: boolean;
+  error: string | null;
+
+  // Data fetching
+  fetchDashboardData: () => Promise<void>;
+
   // Income operations
-  addIncome: (income: Omit<Income, "id" | "createdAt" | "updatedAt">) => string;
-  updateIncome: (id: string, updates: Partial<Income>) => void;
-  deleteIncome: (id: string) => void;
+  addIncome: (
+    income: Omit<Income, "id" | "createdAt" | "updatedAt">,
+  ) => Promise<string>;
+  updateIncome: (id: string, updates: Partial<Income>) => Promise<void>;
+  deleteIncome: (id: string) => Promise<void>;
 
   // Expense operations
   addExpense: (
     expense: Omit<Expense, "id" | "createdAt" | "updatedAt">,
-  ) => string;
-  updateExpense: (id: string, updates: Partial<Expense>) => void;
-  deleteExpense: (id: string) => void;
+  ) => Promise<string>;
+  updateExpense: (id: string, updates: Partial<Expense>) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
 
   // Subscription operations
   addSubscription: (
     subscription: Omit<Subscription, "id" | "createdAt" | "updatedAt">,
-  ) => string;
-  updateSubscription: (id: string, updates: Partial<Subscription>) => void;
-  deleteSubscription: (id: string) => void;
-  toggleSubscriptionActive: (id: string) => void;
+  ) => Promise<string>;
+  updateSubscription: (
+    id: string,
+    updates: Partial<Subscription>,
+  ) => Promise<void>;
+  deleteSubscription: (id: string) => Promise<void>;
+  toggleSubscriptionActive: (id: string) => Promise<void>;
 
   // Settings
-  setCurrency: (currency: string) => void;
+  setCurrency: (currency: string) => Promise<void>;
 
   // Bulk operations
-  clearAllData: () => void;
+  clearError: () => void;
 }
 
 // ============================================================================
-// Helper Functions
+// API Helper
 // ============================================================================
 
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-}
+async function apiRequest<T>(
+  url: string,
+  options?: RequestInit,
+): Promise<{ success: boolean; data?: T; error?: string }> {
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    });
 
-function getTimestamp(): string {
-  return new Date().toISOString();
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: result.error?.message || "Request failed",
+      };
+    }
+
+    return { success: true, data: result.data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Network error",
+    };
+  }
 }
 
 // ============================================================================
 // Store
 // ============================================================================
 
-export const useFinanceStore = create<FinanceState>()(
-  persist(
-    (set) => ({
-      // Initial state
-      incomes: [],
-      expenses: [],
-      subscriptions: [],
-      currency: "USD",
+export const useFinanceStore = create<FinanceState>()((set, get) => ({
+  // Initial state
+  incomes: [],
+  expenses: [],
+  subscriptions: [],
+  currency: "USD",
+  isLoading: false,
+  error: null,
 
-      // Income operations
-      addIncome: (income) => {
-        const id = generateId();
-        const timestamp = getTimestamp();
-        set((state) => ({
-          incomes: [
-            ...state.incomes,
-            { ...income, id, createdAt: timestamp, updatedAt: timestamp },
-          ],
-        }));
-        return id;
-      },
+  // Fetch all dashboard data
+  fetchDashboardData: async () => {
+    set({ isLoading: true, error: null });
 
-      updateIncome: (id, updates) => {
-        set((state) => ({
-          incomes: state.incomes.map((income) =>
-            income.id === id
-              ? { ...income, ...updates, updatedAt: getTimestamp() }
-              : income,
-          ),
-        }));
-      },
+    const result = await apiRequest<{
+      incomes: Income[];
+      expenses: Expense[];
+      subscriptions: Subscription[];
+      settings: { currency: string };
+    }>("/api/dashboard");
 
-      deleteIncome: (id) => {
-        set((state) => ({
-          incomes: state.incomes.filter((income) => income.id !== id),
-        }));
-      },
+    if (result.success && result.data) {
+      set({
+        incomes: result.data.incomes,
+        expenses: result.data.expenses,
+        subscriptions: result.data.subscriptions,
+        currency: result.data.settings.currency,
+        isLoading: false,
+      });
+    } else {
+      set({ isLoading: false, error: result.error || "Failed to fetch data" });
+    }
+  },
 
-      // Expense operations
-      addExpense: (expense) => {
-        const id = generateId();
-        const timestamp = getTimestamp();
-        set((state) => ({
-          expenses: [
-            ...state.expenses,
-            { ...expense, id, createdAt: timestamp, updatedAt: timestamp },
-          ],
-        }));
-        return id;
-      },
+  // Income operations
+  addIncome: async (income) => {
+    const result = await apiRequest<Income>("/api/income", {
+      method: "POST",
+      body: JSON.stringify(income),
+    });
 
-      updateExpense: (id, updates) => {
-        set((state) => ({
-          expenses: state.expenses.map((expense) =>
-            expense.id === id
-              ? { ...expense, ...updates, updatedAt: getTimestamp() }
-              : expense,
-          ),
-        }));
-      },
+    if (result.success && result.data) {
+      set((state) => ({
+        incomes: [result.data!, ...state.incomes],
+      }));
+      return result.data.id;
+    }
 
-      deleteExpense: (id) => {
-        set((state) => ({
-          expenses: state.expenses.filter((expense) => expense.id !== id),
-        }));
-      },
+    set({ error: result.error || "Failed to add income" });
+    throw new Error(result.error || "Failed to add income");
+  },
 
-      // Subscription operations
-      addSubscription: (subscription) => {
-        const id = generateId();
-        const timestamp = getTimestamp();
-        set((state) => ({
-          subscriptions: [
-            ...state.subscriptions,
-            { ...subscription, id, createdAt: timestamp, updatedAt: timestamp },
-          ],
-        }));
-        return id;
-      },
+  updateIncome: async (id, updates) => {
+    const result = await apiRequest<Income>(`/api/income/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    });
 
-      updateSubscription: (id, updates) => {
-        set((state) => ({
-          subscriptions: state.subscriptions.map((sub) =>
-            sub.id === id
-              ? { ...sub, ...updates, updatedAt: getTimestamp() }
-              : sub,
-          ),
-        }));
-      },
+    if (result.success && result.data) {
+      set((state) => ({
+        incomes: state.incomes.map((income) =>
+          income.id === id ? result.data! : income,
+        ),
+      }));
+    } else {
+      set({ error: result.error || "Failed to update income" });
+      throw new Error(result.error || "Failed to update income");
+    }
+  },
 
-      deleteSubscription: (id) => {
-        set((state) => ({
-          subscriptions: state.subscriptions.filter((sub) => sub.id !== id),
-        }));
-      },
+  deleteIncome: async (id) => {
+    const result = await apiRequest(`/api/income/${id}`, {
+      method: "DELETE",
+    });
 
-      toggleSubscriptionActive: (id) => {
-        set((state) => ({
-          subscriptions: state.subscriptions.map((sub) =>
-            sub.id === id
-              ? { ...sub, active: !sub.active, updatedAt: getTimestamp() }
-              : sub,
-          ),
-        }));
-      },
+    if (result.success) {
+      set((state) => ({
+        incomes: state.incomes.filter((income) => income.id !== id),
+      }));
+    } else {
+      set({ error: result.error || "Failed to delete income" });
+      throw new Error(result.error || "Failed to delete income");
+    }
+  },
 
-      // Settings
-      setCurrency: (currency) => {
-        set({ currency });
-      },
+  // Expense operations
+  addExpense: async (expense) => {
+    const result = await apiRequest<Expense>("/api/expenses", {
+      method: "POST",
+      body: JSON.stringify(expense),
+    });
 
-      // Bulk operations
-      clearAllData: () => {
-        set({
-          incomes: [],
-          expenses: [],
-          subscriptions: [],
-        });
-      },
-    }),
-    {
-      name: "cashgap-finance-storage",
-    },
-  ),
-);
+    if (result.success && result.data) {
+      set((state) => ({
+        expenses: [result.data!, ...state.expenses],
+      }));
+      return result.data.id;
+    }
+
+    set({ error: result.error || "Failed to add expense" });
+    throw new Error(result.error || "Failed to add expense");
+  },
+
+  updateExpense: async (id, updates) => {
+    const result = await apiRequest<Expense>(`/api/expenses/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    });
+
+    if (result.success && result.data) {
+      set((state) => ({
+        expenses: state.expenses.map((expense) =>
+          expense.id === id ? result.data! : expense,
+        ),
+      }));
+    } else {
+      set({ error: result.error || "Failed to update expense" });
+      throw new Error(result.error || "Failed to update expense");
+    }
+  },
+
+  deleteExpense: async (id) => {
+    const result = await apiRequest(`/api/expenses/${id}`, {
+      method: "DELETE",
+    });
+
+    if (result.success) {
+      set((state) => ({
+        expenses: state.expenses.filter((expense) => expense.id !== id),
+      }));
+    } else {
+      set({ error: result.error || "Failed to delete expense" });
+      throw new Error(result.error || "Failed to delete expense");
+    }
+  },
+
+  // Subscription operations
+  addSubscription: async (subscription) => {
+    const result = await apiRequest<Subscription>("/api/subscriptions", {
+      method: "POST",
+      body: JSON.stringify(subscription),
+    });
+
+    if (result.success && result.data) {
+      set((state) => ({
+        subscriptions: [result.data!, ...state.subscriptions],
+      }));
+      return result.data.id;
+    }
+
+    set({ error: result.error || "Failed to add subscription" });
+    throw new Error(result.error || "Failed to add subscription");
+  },
+
+  updateSubscription: async (id, updates) => {
+    const result = await apiRequest<Subscription>(`/api/subscriptions/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    });
+
+    if (result.success && result.data) {
+      set((state) => ({
+        subscriptions: state.subscriptions.map((sub) =>
+          sub.id === id ? result.data! : sub,
+        ),
+      }));
+    } else {
+      set({ error: result.error || "Failed to update subscription" });
+      throw new Error(result.error || "Failed to update subscription");
+    }
+  },
+
+  deleteSubscription: async (id) => {
+    const result = await apiRequest(`/api/subscriptions/${id}`, {
+      method: "DELETE",
+    });
+
+    if (result.success) {
+      set((state) => ({
+        subscriptions: state.subscriptions.filter((sub) => sub.id !== id),
+      }));
+    } else {
+      set({ error: result.error || "Failed to delete subscription" });
+      throw new Error(result.error || "Failed to delete subscription");
+    }
+  },
+
+  toggleSubscriptionActive: async (id) => {
+    const subscription = get().subscriptions.find((s) => s.id === id);
+    if (!subscription) return;
+
+    await get().updateSubscription(id, { active: !subscription.active });
+  },
+
+  // Settings
+  setCurrency: async (currency) => {
+    const result = await apiRequest("/api/user/settings", {
+      method: "PUT",
+      body: JSON.stringify({ currency }),
+    });
+
+    if (result.success) {
+      set({ currency });
+    } else {
+      set({ error: result.error || "Failed to update currency" });
+      throw new Error(result.error || "Failed to update currency");
+    }
+  },
+
+  // Clear error
+  clearError: () => {
+    set({ error: null });
+  },
+}));

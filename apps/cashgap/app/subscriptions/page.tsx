@@ -11,30 +11,36 @@ import {
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
 import { formatCurrency } from "@/lib/utils";
-import { useFinanceStore, type Subscription } from "@/stores";
-import { useHydration } from "@/hooks";
+import { useDashboardData } from "@/hooks";
+import type { Subscription } from "@/stores";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export default function SubscriptionsPage() {
-  const isHydrated = useHydration();
-  const { subscriptions } = useFinanceStore();
+  const { data, isLoading } = useDashboardData();
+  const subscriptions = data?.subscriptions ?? [];
 
   // Calculate totals
-  const activeSubscriptions = subscriptions.filter((s) => s.active);
-  const monthlyTotal = activeSubscriptions.reduce((sum, s) => {
-    return sum + (s.frequency === "yearly" ? s.amount / 12 : s.amount);
-  }, 0);
+  const activeSubscriptions = subscriptions.filter(
+    (s: Subscription) => s.active,
+  );
+  const monthlyTotal = activeSubscriptions.reduce(
+    (sum: number, s: Subscription) => {
+      return sum + (s.frequency === "yearly" ? s.amount / 12 : s.amount);
+    },
+    0,
+  );
   const yearlyTotal = monthlyTotal * 12;
 
   // Find upcoming renewals (next 7 days)
   const today = new Date();
   const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const upcomingRenewals = activeSubscriptions.filter((s) => {
+  const upcomingRenewals = activeSubscriptions.filter((s: Subscription) => {
     const billingDate = new Date(s.nextBillingDate);
     return billingDate >= today && billingDate <= nextWeek;
   });
 
   // Loading skeleton
-  if (!isHydrated) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <DashboardWrapper className="space-y-8">
@@ -200,9 +206,14 @@ export default function SubscriptionsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">All Subscriptions</h2>
+            <SectionHeader
+              icon={<CreditCard className="h-5 w-5 text-orange-500" />}
+              title="All Subscriptions"
+              count={subscriptions.length}
+              countLabel={subscriptions.length === 1 ? "subscription" : "subscriptions"}
+            />
             <div className="space-y-3">
-              {subscriptions.map((subscription) => (
+              {subscriptions.map((subscription: Subscription) => (
                 <SubscriptionCard
                   key={subscription.id}
                   subscription={subscription}

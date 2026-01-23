@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { CreditCard, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper } from "@repo/ui";
-import { useFinanceStore } from "@/stores";
+import { Button, DashboardWrapper, useToast } from "@repo/ui";
+import { useAddSubscription } from "@/hooks";
 
 const subscriptionCategories = [
   { value: "streaming", label: "Streaming" },
@@ -26,7 +26,8 @@ const frequencies = [
 
 export default function NewSubscriptionPage() {
   const router = useRouter();
-  const { addSubscription } = useFinanceStore();
+  const addSubscription = useAddSubscription();
+  const { addToast } = useToast();
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
@@ -36,7 +37,6 @@ export default function NewSubscriptionPage() {
     new Date().toISOString().split("T")[0] ?? "",
   );
   const [note, setNote] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,9 +54,8 @@ export default function NewSubscriptionPage() {
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      addSubscription({
+      await addSubscription.mutateAsync({
         name: name.trim(),
         amount: parsedAmount,
         category,
@@ -66,11 +65,20 @@ export default function NewSubscriptionPage() {
         note: note.trim() || undefined,
       });
 
+      addToast({
+        type: "success",
+        title: "Subscription added",
+        message: `"${name.trim()}" has been added successfully`,
+      });
+
       router.push("/subscriptions");
     } catch {
+      addToast({
+        type: "error",
+        title: "Failed to add subscription",
+        message: "Please try again.",
+      });
       setError("Failed to add subscription. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -237,10 +245,10 @@ export default function NewSubscriptionPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                isLoading={addSubscription.isPending}
                 className="flex-1 h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
               >
-                {isSubmitting ? "Adding..." : "Add Subscription"}
+                Add Subscription
               </Button>
             </div>
           </form>

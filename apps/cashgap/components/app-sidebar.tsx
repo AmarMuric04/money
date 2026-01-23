@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Wallet,
   LayoutDashboard,
@@ -26,11 +27,11 @@ import {
   SidebarMenuItem,
   SidebarRail,
   Button,
-  SimpleNavUser,
 } from "@repo/ui";
+import { NavUser } from "./nav-user";
 
 const mainNavigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Income", href: "/income", icon: TrendingUp },
   { name: "Expenses", href: "/expenses", icon: TrendingDown },
   { name: "Subscriptions", href: "/subscriptions", icon: CreditCard },
@@ -43,6 +44,7 @@ const settingsNavigation = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
 
   // Prefetch routes on hover for faster navigation
   const handlePrefetch = (href: string) => {
@@ -143,7 +145,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <SimpleNavUser name="User" subtitle="Free Plan" />
+        <NavUser
+          user={{
+            name: session?.user?.name,
+            email: session?.user?.email,
+            image: session?.user?.image,
+          }}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

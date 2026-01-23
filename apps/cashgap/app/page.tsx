@@ -1,273 +1,303 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
   TrendingUp,
-  TrendingDown,
   Wallet,
+  PieChart,
   CreditCard,
-  Plus,
+  ArrowRight,
+  Check,
+  BarChart3,
+  Shield,
 } from "lucide-react";
-import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
-import { formatCurrency } from "@/lib/utils";
-import { useFinanceStore } from "@/stores";
-import { useHydration } from "@/hooks";
+import { Button } from "@repo/ui";
 
-export default function Dashboard() {
-  const isHydrated = useHydration();
-  const { incomes, expenses, subscriptions } = useFinanceStore();
+const features = [
+  {
+    icon: TrendingUp,
+    title: "Income Tracking",
+    description:
+      "Monitor all your income sources in one place. Never miss a payment again.",
+  },
+  {
+    icon: Wallet,
+    title: "Expense Management",
+    description:
+      "Track and categorize your expenses to understand where your money goes.",
+  },
+  {
+    icon: CreditCard,
+    title: "Subscription Tracking",
+    description: "Keep tabs on recurring payments and avoid surprise charges.",
+  },
+  {
+    icon: PieChart,
+    title: "Visual Analytics",
+    description:
+      "Beautiful charts and insights to visualize your financial health.",
+  },
+  {
+    icon: BarChart3,
+    title: "Budget Planning",
+    description: "Set budgets and track your progress towards financial goals.",
+  },
+  {
+    icon: Shield,
+    title: "Secure & Private",
+    description: "Your financial data is encrypted and protected at all times.",
+  },
+];
 
-  // Calculate totals
-  const totalIncome = incomes.reduce((sum, i) => sum + i.amount, 0);
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const monthlySubscriptions = subscriptions
-    .filter((s) => s.active)
-    .reduce((sum, s) => {
-      return sum + (s.frequency === "yearly" ? s.amount / 12 : s.amount);
-    }, 0);
-  const balance = totalIncome - totalExpenses - monthlySubscriptions;
+const steps = [
+  {
+    number: "01",
+    title: "Create Your Account",
+    description:
+      "Sign up for free and verify your email to get started in minutes.",
+  },
+  {
+    number: "02",
+    title: "Add Your Finances",
+    description:
+      "Log your income, expenses, and subscriptions to build your financial picture.",
+  },
+  {
+    number: "03",
+    title: "Gain Insights",
+    description:
+      "Get personalized insights and recommendations to improve your finances.",
+  },
+];
 
-  // Loading skeleton
-  if (!isHydrated) {
-    return (
-      <DashboardLayout>
-        <DashboardWrapper className="space-y-8">
-          {/* Header Skeleton */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-2">
-              <Skeleton className="h-9 w-48" />
-              <Skeleton className="h-6 w-72" />
+export default function Home() {
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated" && session?.user;
+  const isLoading = status === "loading";
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+                <Wallet className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold text-foreground">CashGap</span>
+            </Link>
+
+            <nav className="flex items-center gap-3">
+              {isLoading ? (
+                <div className="h-10 w-24 animate-pulse rounded-xl bg-muted" />
+              ) : isAuthenticated ? (
+                <Link href="/dashboard">
+                  <Button>
+                    Dashboard
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost">Sign In</Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button>Get Started</Button>
+                  </Link>
+                </>
+              )}
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative py-20 sm:py-32">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              Take Control of Your{" "}
+              <span className="text-primary">Finances</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+              CashGap helps you track income, manage expenses, and monitor
+              subscriptions — all in one beautiful, easy-to-use platform.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              {isLoading ? (
+                <div className="h-12 w-48 animate-pulse rounded-xl bg-muted" />
+              ) : isAuthenticated ? (
+                <Link href="/dashboard">
+                  <Button size="lg" className="h-12 px-8 text-base">
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/register">
+                    <Button size="lg" className="h-12 px-8 text-base">
+                      Start Free Today
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="h-12 px-8 text-base"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
-            <Skeleton className="h-11 w-40 rounded-2xl" />
           </div>
 
-          {/* Stats Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
+          {/* Trust Badges */}
+          <div className="mt-16 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+            {[
+              { icon: Shield, text: "Bank-Level Security" },
+              { icon: TrendingUp, text: "Real-Time Insights" },
+              { icon: Wallet, text: "Free Forever Plan" },
+            ].map((badge) => (
               <div
-                key={i}
-                className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm"
+                key={badge.text}
+                className="flex items-center gap-2 text-sm text-muted-foreground"
               >
-                <Skeleton className="h-12 w-12 rounded-2xl" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-8 w-20" />
-                </div>
+                <badge.icon className="h-4 w-4 text-primary" />
+                <span>{badge.text}</span>
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Quick Actions Skeleton */}
-          <div className="space-y-4">
-            <Skeleton className="h-7 w-32" />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="p-5 bg-card rounded-3xl border shadow-sm"
-                >
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="h-12 w-12 rounded-2xl" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-5 w-28" />
-                      <Skeleton className="h-4 w-48" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </DashboardWrapper>
-      </DashboardLayout>
-    );
-  }
-
-  return (
-    <DashboardLayout>
-      <DashboardWrapper className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-            <p className="text-muted-foreground text-lg">
-              Your financial overview at a glance
+      {/* Features Grid */}
+      <section className="py-20 border-t border-border">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-foreground">
+              Everything You Need to Manage Money
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Powerful features to help you take control of your finances.
             </p>
           </div>
-          <Button
-            asChild
-            className="rounded-2xl h-11 px-6 shadow-lg shadow-primary/20"
-          >
-            <Link href="/income/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Transaction
-            </Link>
-          </Button>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            label="Balance"
-            value={balance}
-            icon={Wallet}
-            iconColor="text-primary"
-            iconBg="bg-primary/10"
-          />
-          <StatCard
-            label="Total Income"
-            value={totalIncome}
-            icon={TrendingUp}
-            iconColor="text-green-500"
-            iconBg="bg-green-500/10"
-          />
-          <StatCard
-            label="Total Expenses"
-            value={totalExpenses}
-            icon={TrendingDown}
-            iconColor="text-red-500"
-            iconBg="bg-red-500/10"
-          />
-          <StatCard
-            label="Subscriptions"
-            value={monthlySubscriptions}
-            icon={CreditCard}
-            iconColor="text-orange-500"
-            iconBg="bg-orange-500/10"
-            suffix="/mo"
-          />
-        </div>
-
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <QuickActionCard
-              href="/income/new"
-              title="Add Income"
-              description="Record salary, freelance, or other income"
-              icon={TrendingUp}
-              iconColor="text-green-500"
-              iconBg="bg-green-500/10"
-            />
-            <QuickActionCard
-              href="/expenses/new"
-              title="Add Expense"
-              description="Track where your money goes"
-              icon={TrendingDown}
-              iconColor="text-red-500"
-              iconBg="bg-red-500/10"
-            />
-            <QuickActionCard
-              href="/subscriptions/new"
-              title="Add Subscription"
-              description="Manage recurring payments"
-              icon={CreditCard}
-              iconColor="text-orange-500"
-              iconBg="bg-orange-500/10"
-            />
+          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="group rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/50"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                  <feature.icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-muted-foreground">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Empty State */}
-        {incomes.length === 0 &&
-          expenses.length === 0 &&
-          subscriptions.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-center border rounded-3xl bg-card shadow-sm">
-              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Wallet className="h-8 w-8 text-muted-foreground" />
+      {/* How It Works */}
+      <section className="py-20 border-t border-border bg-muted/30">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-foreground">How It Works</h2>
+            <p className="mt-4 text-muted-foreground">
+              Get started in three simple steps.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-8 md:grid-cols-3">
+            {steps.map((step) => (
+              <div key={step.number} className="relative text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground">
+                  {step.number}
+                </div>
+                <h3 className="mt-6 text-lg font-semibold text-foreground">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-muted-foreground">{step.description}</p>
               </div>
-              <h3 className="text-lg font-semibold">No transactions yet</h3>
-              <p className="text-muted-foreground mt-1 mb-4 max-w-md">
-                Start by adding your income sources, expenses, or subscriptions
-                to get a clear picture of your finances.
-              </p>
-              <Button
-                asChild
-                className="rounded-2xl h-11 px-6 shadow-lg shadow-primary/20"
-              >
-                <Link href="/income/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Your First Transaction
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 border-t border-border">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl bg-primary p-8 sm:p-12 text-center">
+            <h2 className="text-3xl font-bold text-primary-foreground">
+              Start Managing Your Money Today
+            </h2>
+            <p className="mt-4 text-primary-foreground/80">
+              Join thousands of users who trust CashGap with their financial
+              management.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              {isAuthenticated ? (
+                <Link href="/dashboard">
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="h-12 px-8 text-base"
+                  >
+                    Open Dashboard
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
                 </Link>
-              </Button>
+              ) : (
+                <>
+                  <Link href="/register">
+                    <Button
+                      size="lg"
+                      variant="secondary"
+                      className="h-12 px-8 text-base"
+                    >
+                      Create Free Account
+                    </Button>
+                  </Link>
+                  <div className="flex items-center gap-2 text-primary-foreground/80">
+                    <Check className="h-4 w-4" />
+                    <span className="text-sm">No credit card required</span>
+                  </div>
+                </>
+              )}
             </div>
-          )}
-      </DashboardWrapper>
-    </DashboardLayout>
-  );
-}
+          </div>
+        </div>
+      </section>
 
-// Stat Card Component
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  iconColor,
-  iconBg,
-  suffix = "",
-}: {
-  label: string;
-  value: number;
-  icon: React.ComponentType<{ className?: string }>;
-  iconColor: string;
-  iconBg: string;
-  suffix?: string;
-}) {
-  return (
-    <div className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm">
-      <div
-        className={`h-12 w-12 rounded-2xl flex items-center justify-center ${iconBg}`}
-      >
-        <Icon className={`h-6 w-6 ${iconColor}`} />
-      </div>
-      <div>
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-2xl font-bold">
-          {formatCurrency(value)}
-          {suffix && (
-            <span className="text-sm font-normal text-muted-foreground">
-              {suffix}
-            </span>
-          )}
-        </p>
-      </div>
+      {/* Footer */}
+      <footer className="border-t border-border py-12">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                <Wallet className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <span className="font-semibold text-foreground">CashGap</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} CashGap. Take control of your
+              finances.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
-  );
-}
-
-// Quick Action Card Component
-function QuickActionCard({
-  href,
-  title,
-  description,
-  icon: Icon,
-  iconColor,
-  iconBg,
-}: {
-  href: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  iconColor: string;
-  iconBg: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group relative p-5 bg-card rounded-3xl border hover:border-primary transition-all shadow-sm hover:shadow-md"
-    >
-      <div className="flex items-center gap-4">
-        <div
-          className={`h-12 w-12 rounded-2xl flex items-center justify-center ${iconBg} group-hover:scale-105 transition-transform`}
-        >
-          <Icon className={`h-6 w-6 ${iconColor}`} />
-        </div>
-        <div>
-          <h3 className="font-semibold">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-      </div>
-    </Link>
   );
 }

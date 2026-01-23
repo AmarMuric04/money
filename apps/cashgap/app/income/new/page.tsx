@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { TrendingUp, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper } from "@repo/ui";
-import { useFinanceStore, type IncomeCategory } from "@/stores";
+import { Button, DashboardWrapper, useToast } from "@repo/ui";
+import { useAddIncome } from "@/hooks";
+import type { IncomeCategory } from "@/stores";
 
 const incomeCategories: { value: IncomeCategory; label: string }[] = [
   { value: "salary", label: "Salary" },
@@ -25,7 +26,8 @@ const frequencies = [
 
 export default function NewIncomePage() {
   const router = useRouter();
-  const { addIncome } = useFinanceStore();
+  const addIncome = useAddIncome();
+  const { addToast } = useToast();
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
@@ -37,7 +39,6 @@ export default function NewIncomePage() {
     new Date().toISOString().split("T")[0] ?? "",
   );
   const [note, setNote] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,9 +56,8 @@ export default function NewIncomePage() {
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      addIncome({
+      await addIncome.mutateAsync({
         name: name.trim(),
         amount: parsedAmount,
         category,
@@ -66,11 +66,20 @@ export default function NewIncomePage() {
         note: note.trim() || undefined,
       });
 
+      addToast({
+        type: "success",
+        title: "Income added",
+        message: `"${name.trim()}" has been added successfully`,
+      });
+
       router.push("/income");
     } catch {
+      addToast({
+        type: "error",
+        title: "Failed to add income",
+        message: "Please try again.",
+      });
       setError("Failed to add income. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -237,10 +246,10 @@ export default function NewIncomePage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                isLoading={addIncome.isPending}
                 className="flex-1 h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
               >
-                {isSubmitting ? "Adding..." : "Add Income"}
+                Add Income
               </Button>
             </div>
           </form>

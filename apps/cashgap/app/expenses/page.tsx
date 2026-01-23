@@ -12,12 +12,20 @@ import {
   MoreHorizontal,
   Gamepad2,
   Heart,
+  ChevronDown,
 } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
-import { formatCurrency } from "@/lib/utils";
-import { useFinanceStore, type Expense, type ExpenseCategory } from "@/stores";
-import { useHydration } from "@/hooks";
+import { formatCurrency, cn } from "@/lib/utils";
+import { useDashboardData } from "@/hooks";
+import type { Expense, ExpenseCategory } from "@/stores";
+import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { SectionHeader } from "@/components/ui/section-header";
 
 // Category configuration
 const categoryConfig: Record<
@@ -80,15 +88,19 @@ const categoryConfig: Record<
 };
 
 export default function ExpensesPage() {
-  const isHydrated = useHydration();
-  const { expenses } = useFinanceStore();
+  const { data, isLoading } = useDashboardData();
+  const expenses = data?.expenses ?? [];
+  const [categoryOpen, setCategoryOpen] = useState(true);
 
   // Calculate totals
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalExpenses = expenses.reduce(
+    (sum: number, e: Expense) => sum + e.amount,
+    0,
+  );
 
   // Group by category for summary
   const expensesByCategory = expenses.reduce(
-    (acc, expense) => {
+    (acc: Record<ExpenseCategory, number>, expense: Expense) => {
       acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
       return acc;
     },
@@ -97,16 +109,16 @@ export default function ExpensesPage() {
 
   // Get this month's expenses
   const thisMonth = new Date().toISOString().slice(0, 7);
-  const thisMonthExpenses = expenses.filter((e) =>
+  const thisMonthExpenses = expenses.filter((e: Expense) =>
     e.date.startsWith(thisMonth),
   );
   const thisMonthTotal = thisMonthExpenses.reduce(
-    (sum, e) => sum + e.amount,
+    (sum: number, e: Expense) => sum + e.amount,
     0,
   );
 
   // Loading skeleton
-  if (!isHydrated) {
+  if (isLoading) {
     return (
       <DashboardLayout>
         <DashboardWrapper className="space-y-8">
@@ -226,34 +238,59 @@ export default function ExpensesPage() {
           </div>
         </div>
 
-        {/* Category Breakdown - only show if there are expenses */}
+        {/* Category Breakdown - Collapsible */}
         {expenses.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">By Category</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {(Object.keys(categoryConfig) as ExpenseCategory[]).map((cat) => {
-                const config = categoryConfig[cat];
-                const amount = expensesByCategory[cat] || 0;
-                const Icon = config.icon;
-                return (
-                  <div
-                    key={cat}
-                    className="p-4 rounded-2xl border bg-card shadow-sm text-center"
-                  >
+          <Collapsible
+            open={categoryOpen}
+            onOpenChange={setCategoryOpen}
+            className="space-y-4"
+          >
+            <CollapsibleTrigger asChild>
+              <button className="flex items-center gap-3 w-full group">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5 text-primary" />
+                  <h2 className="text-lg font-semibold text-foreground">
+                    By Category
+                  </h2>
+                </div>
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-sm text-muted-foreground font-medium">
+                  {Object.keys(expensesByCategory).length} categories
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-5 w-5 text-muted-foreground transition-transform duration-200",
+                    categoryOpen && "rotate-180",
+                  )}
+                />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+                {(Object.keys(categoryConfig) as ExpenseCategory[]).map((cat) => {
+                  const config = categoryConfig[cat];
+                  const amount = expensesByCategory[cat] || 0;
+                  const Icon = config.icon;
+                  return (
                     <div
-                      className={`h-10 w-10 rounded-xl ${config.bg} flex items-center justify-center mx-auto mb-2`}
+                      key={cat}
+                      className="p-4 rounded-2xl border bg-card shadow-sm text-center"
                     >
-                      <Icon className={`h-5 w-5 ${config.color}`} />
+                      <div
+                        className={`h-10 w-10 rounded-xl ${config.bg} flex items-center justify-center mx-auto mb-2`}
+                      >
+                        <Icon className={`h-5 w-5 ${config.color}`} />
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {config.label}
+                      </p>
+                      <p className="font-semibold">{formatCurrency(amount)}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      {config.label}
-                    </p>
-                    <p className="font-semibold">{formatCurrency(amount)}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                  );
+                })}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )}
 
         {/* Expenses List or Empty State */}
@@ -279,9 +316,14 @@ export default function ExpensesPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Recent Expenses</h2>
+            <SectionHeader
+              icon={<TrendingDown className="h-5 w-5 text-red-500" />}
+              title="Recent Expenses"
+              count={expenses.length}
+              countLabel={expenses.length === 1 ? "expense" : "expenses"}
+            />
             <div className="space-y-3">
-              {expenses.map((expense) => (
+              {expenses.map((expense: Expense) => (
                 <ExpenseCard key={expense.id} expense={expense} />
               ))}
             </div>
