@@ -51,7 +51,13 @@ export default function LoginPage() {
   };
 
   const adapter = {
-    signIn: async ({ email, password }: { email: string; password: string }) => {
+    signIn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
       const result = await signIn("credentials", {
         email,
         password,
@@ -105,7 +111,10 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <LoginForm adapter={adapter} onSuccess={() => router.push("/dashboard")} />
+      <LoginForm
+        adapter={adapter}
+        onSuccess={() => router.push("/dashboard")}
+      />
 
       {/* Sign up link */}
       <div className="text-center">

@@ -139,7 +139,13 @@ export default function RegisterPage() {
   };
 
   const adapter = {
-    signUp: async ({ email, password }: { email: string; password: string }) => {
+    signUp: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
       setIsLoading(true);
 
       try {

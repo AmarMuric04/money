@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useToast, Spinner, Input, Button } from "@repo/ui";
-import { AuthLayout, LoginForm } from "@repo/auth";
+import { LoginForm } from "@repo/auth";
 import { deriveKeys } from "@/lib/crypto/client";
 import { useVaultStore } from "@/stores";
 // lucide icons removed - not used after migration
@@ -246,50 +246,48 @@ function LoginContent() {
   };
 
   return (
-    <AuthLayout>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold">Welcome back</h2>
-          <p className="text-muted-foreground">Sign in to access your vault</p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold">Welcome back</h2>
+        <p className="text-muted-foreground">Sign in to access your vault</p>
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full h-12 rounded-xl gap-3"
+        onClick={handleGoogleLogin}
+        isLoading={isGoogleLoading}
+      >
+        {!isGoogleLoading && <GoogleIcon className="h-5 w-5" />}
+        Continue with Google
+      </Button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
         </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full h-12 rounded-xl gap-3"
-          onClick={handleGoogleLogin}
-          isLoading={isGoogleLoading}
-        >
-          {!isGoogleLoading && <GoogleIcon className="h-5 w-5" />}
-          Continue with Google
-        </Button>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-background text-muted-foreground">
-              Or continue with email
-            </span>
-          </div>
-        </div>
-
-        <LoginForm adapter={adapter} onSuccess={() => router.push("/vault")} />
-
-        <div className="text-center">
-          <span className="text-muted-foreground">
-            Don&apos;t have an account?{" "}
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-background text-muted-foreground">
+            Or continue with email
           </span>
-          <Link
-            href="/register"
-            className="text-primary font-semibold hover:underline"
-          >
-            Create one
-          </Link>
         </div>
       </div>
-    </AuthLayout>
+
+      <LoginForm adapter={adapter} onSuccess={() => router.push("/vault")} />
+
+      <div className="text-center">
+        <span className="text-muted-foreground">
+          Don&apos;t have an account?{" "}
+        </span>
+        <Link
+          href="/register"
+          className="text-primary font-semibold hover:underline"
+        >
+          Create one
+        </Link>
+      </div>
+    </div>
   );
 }
 

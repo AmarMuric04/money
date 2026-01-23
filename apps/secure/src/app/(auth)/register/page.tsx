@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button, useToast } from "@repo/ui";
-import { AuthLayout, RegisterForm } from "@repo/auth";
+import { RegisterForm } from "@repo/auth";
 import { useAuthFlow } from "@/hooks";
 import { Mail, AlertCircle, ArrowLeft } from "lucide-react";
 
@@ -92,7 +92,7 @@ function VerificationCodeInput({
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
           disabled={disabled}
-          className="w-12 h-14 text-center text-2xl font-semibold border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none disabled:opacity-50"
+          className="w-12 h-14 text-center text-2xl font-semibold border border-border rounded-lg bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
         />
       ))}
     </div>
@@ -231,40 +231,40 @@ export default function RegisterPage() {
   // Show verification step if we have pending verification
   if (pendingVerification) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 sm:p-10">
+      <div className="space-y-6">
         <button
           onClick={handleBackToForm}
-          className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mb-8 transition-colors"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="text-sm font-medium">Back to registration</span>
         </button>
 
-        <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Mail className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+        <div className="text-center">
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Mail className="h-10 w-10 text-primary" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+          <h2 className="text-3xl font-bold text-foreground mb-3">
             Check your email
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <p className="text-muted-foreground text-lg">
             We sent a verification code to
           </p>
-          <p className="font-semibold text-gray-900 dark:text-white text-lg mt-1">
+          <p className="font-semibold text-foreground text-lg mt-1">
             {pendingVerification.email}
           </p>
         </div>
 
         {error && (
-          <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-3 text-red-600 dark:text-red-400">
+          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleVerifyCode} className="space-y-8">
+        <form onSubmit={handleVerifyCode} className="space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 text-center">
+            <label className="block text-sm font-semibold text-foreground mb-4 text-center">
               Enter verification code
             </label>
             <VerificationCodeInput
@@ -284,17 +284,17 @@ export default function RegisterPage() {
           </Button>
         </form>
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
+        <div className="text-center">
+          <p className="text-muted-foreground">
             Didn&apos;t receive the code?{" "}
             {resendCountdown > 0 ? (
-              <span className="text-gray-400 font-medium">
+              <span className="text-muted-foreground font-medium">
                 Resend in {resendCountdown}s
               </span>
             ) : (
               <button
                 onClick={handleResendCode}
-                className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+                className="text-primary hover:underline font-semibold transition-colors"
                 disabled={isLoading}
               >
                 Resend code
@@ -307,52 +307,48 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold">Create your vault</h2>
-          <p className="text-muted-foreground">
-            Set up your secure password manager
-          </p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold">Create your vault</h2>
+        <p className="text-muted-foreground">
+          Set up your secure password manager
+        </p>
+      </div>
+
+      {/* Google Sign Up */}
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full h-12 rounded-xl gap-3"
+        onClick={handleGoogleSignUp}
+        isLoading={isGoogleLoading}
+      >
+        {!isGoogleLoading && <GoogleIcon className="h-5 w-5" />}
+        Continue with Google
+      </Button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
         </div>
-
-        {/* Google Sign Up */}
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full h-12 rounded-xl gap-3"
-          onClick={handleGoogleSignUp}
-          isLoading={isGoogleLoading}
-        >
-          {!isGoogleLoading && <GoogleIcon className="h-5 w-5" />}
-          Continue with Google
-        </Button>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-background text-muted-foreground">
-              Or create with email
-            </span>
-          </div>
-        </div>
-
-        <RegisterForm adapter={adapter} />
-
-        <div className="text-center">
-          <span className="text-muted-foreground">
-            Already have an account?{" "}
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-background text-muted-foreground">
+            Or create with email
           </span>
-          <Link
-            href="/login"
-            className="text-primary font-semibold hover:underline"
-          >
-            Sign in
-          </Link>
         </div>
       </div>
-    </AuthLayout>
+
+      <RegisterForm adapter={adapter} />
+
+      <div className="text-center">
+        <span className="text-muted-foreground">Already have an account? </span>
+        <Link
+          href="/login"
+          className="text-primary font-semibold hover:underline"
+        >
+          Sign in
+        </Link>
+      </div>
+    </div>
   );
 }
