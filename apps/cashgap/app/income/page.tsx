@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { TrendingUp, Plus, DollarSign, Calendar, Clock } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper } from "@repo/ui";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFinanceStore, type Income } from "@/stores";
 import { useHydration } from "@/hooks";

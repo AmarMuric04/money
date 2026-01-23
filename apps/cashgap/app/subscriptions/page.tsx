@@ -9,8 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper } from "@repo/ui";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useFinanceStore, type Subscription } from "@/stores";
 import { useHydration } from "@/hooks";
