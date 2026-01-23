@@ -2,31 +2,27 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import {
   User,
-  DollarSign,
   Download,
   ChevronRight,
   FileJson,
   FileText,
-  AlertTriangle,
-  Trash2,
+  LogOut,
+  Settings2,
 } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper } from "@repo/ui";
+import { Button, DashboardWrapper, Modal } from "@repo/ui";
 import { useFinanceStore } from "@/stores";
 
 export default function SettingsPage() {
-  const { incomes, expenses, subscriptions, clearAllData } = useFinanceStore();
+  const { incomes, expenses, subscriptions } = useFinanceStore();
 
   // Export modal state
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportFormat, setExportFormat] = useState<"json" | "csv">("json");
   const [isExporting, setIsExporting] = useState(false);
-
-  // Delete confirmation state
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleExport = useCallback(async () => {
     const totalItems = incomes.length + expenses.length + subscriptions.length;
@@ -136,30 +132,24 @@ export default function SettingsPage() {
     }
   }, [incomes, expenses, subscriptions, exportFormat]);
 
-  const handleDeleteAllData = useCallback(async () => {
-    setIsDeleting(true);
-    try {
-      clearAllData();
-      setShowDeleteModal(false);
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [clearAllData]);
+  const handleSignOut = useCallback(async () => {
+    await signOut({ callbackUrl: "/login" });
+  }, []);
 
   const settingsItems = [
-    {
-      type: "link" as const,
-      href: "/settings/currency",
-      icon: DollarSign,
-      label: "Currency",
-      description: "Choose your preferred currency",
-    },
     {
       type: "link" as const,
       href: "/settings/profile",
       icon: User,
       label: "Profile",
-      description: "Update your name and preferences",
+      description: "Update your name and profile information",
+    },
+    {
+      type: "link" as const,
+      href: "/settings/account",
+      icon: Settings2,
+      label: "Account",
+      description: "Manage your account and danger zone",
     },
     {
       type: "action" as const,
@@ -170,11 +160,10 @@ export default function SettingsPage() {
     },
     {
       type: "action" as const,
-      onClick: () => setShowDeleteModal(true),
-      icon: Trash2,
-      label: "Delete All Data",
-      description: "Permanently delete all your financial data",
-      variant: "danger" as const,
+      onClick: handleSignOut,
+      icon: LogOut,
+      label: "Sign Out",
+      description: "Sign out of your account",
     },
   ];
 
@@ -259,123 +248,74 @@ export default function SettingsPage() {
         </div>
 
         {/* Export Modal */}
-        {showExportModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setShowExportModal(false)}
-            />
-            <div className="relative bg-card border rounded-3xl shadow-lg p-6 w-full max-w-md mx-4 space-y-6">
-              <h2 className="text-xl font-semibold">Export Financial Data</h2>
+        <Modal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          title="Export Financial Data"
+        >
+          <div className="space-y-6">
+            <p className="text-sm text-muted-foreground">
+              Export all your income, expenses, and subscriptions data.
+            </p>
 
-              <p className="text-sm text-muted-foreground">
-                Export all your income, expenses, and subscriptions data.
-              </p>
-
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Export Format</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setExportFormat("json")}
-                    className={`flex items-center gap-3 p-4 rounded-xl border transition-colors cursor-pointer ${
-                      exportFormat === "json"
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted/50"
-                    }`}
-                  >
-                    <FileJson
-                      className={`w-5 h-5 ${exportFormat === "json" ? "text-primary" : "text-muted-foreground"}`}
-                    />
-                    <div className="text-left">
-                      <p className="font-medium">JSON</p>
-                      <p className="text-xs text-muted-foreground">
-                        Structured data
-                      </p>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setExportFormat("csv")}
-                    className={`flex items-center gap-3 p-4 rounded-xl border transition-colors cursor-pointer ${
-                      exportFormat === "csv"
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:bg-muted/50"
-                    }`}
-                  >
-                    <FileText
-                      className={`w-5 h-5 ${exportFormat === "csv" ? "text-primary" : "text-muted-foreground"}`}
-                    />
-                    <div className="text-left">
-                      <p className="font-medium">CSV</p>
-                      <p className="text-xs text-muted-foreground">
-                        Spreadsheet
-                      </p>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowExportModal(false)}
-                  className="flex-1 h-12 rounded-xl"
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Export Format</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setExportFormat("json")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-colors ${
+                    exportFormat === "json"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-muted/50"
+                  }`}
                 >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleExport}
-                  disabled={isExporting}
-                  isLoading={isExporting}
-                  className="flex-1 h-12 rounded-xl"
+                  <FileJson
+                    className={`w-5 h-5 ${exportFormat === "json" ? "text-primary" : "text-muted-foreground"}`}
+                  />
+                  <div className="text-left">
+                    <p className="font-medium">JSON</p>
+                    <p className="text-xs text-muted-foreground">
+                      Structured data
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setExportFormat("csv")}
+                  className={`flex items-center gap-3 p-4 rounded-lg border transition-colors ${
+                    exportFormat === "csv"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-muted/50"
+                  }`}
                 >
-                  Export
-                </Button>
+                  <FileText
+                    className={`w-5 h-5 ${exportFormat === "csv" ? "text-primary" : "text-muted-foreground"}`}
+                  />
+                  <div className="text-left">
+                    <p className="font-medium">CSV</p>
+                    <p className="text-xs text-muted-foreground">Spreadsheet</p>
+                  </div>
+                </button>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setShowDeleteModal(false)}
-            />
-            <div className="relative bg-card border rounded-3xl shadow-lg p-6 w-full max-w-md mx-4 space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-2xl bg-destructive/10">
-                  <AlertTriangle className="w-6 h-6 text-destructive" />
-                </div>
-                <h2 className="text-xl font-semibold">Delete All Data</h2>
-              </div>
-
-              <p className="text-muted-foreground">
-                This action cannot be undone. All your income, expenses, and
-                subscriptions will be permanently deleted.
-              </p>
-
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 h-12 rounded-xl"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDeleteAllData}
-                  disabled={isDeleting}
-                  isLoading={isDeleting}
-                  className="flex-1 h-12 rounded-xl"
-                >
-                  Delete All
-                </Button>
-              </div>
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowExportModal(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleExport}
+                isLoading={isExporting}
+                className="flex-1"
+              >
+                Export
+              </Button>
             </div>
           </div>
-        )}
+        </Modal>
       </DashboardWrapper>
     </DashboardLayout>
   );

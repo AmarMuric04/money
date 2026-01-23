@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { BadgeCheck, ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import { ChevronsUpDown, LogOut, Settings, User } from "lucide-react";
 
 import {
   Avatar,
@@ -61,12 +61,12 @@ export function NavUser({ user }: NavUserProps) {
                   src={user.image || undefined}
                   alt={user.name || "User"}
                 />
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+                <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
+                <span className="truncate font-medium">
                   {user.name || "User"}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
@@ -89,12 +89,12 @@ export function NavUser({ user }: NavUserProps) {
                     src={user.image || undefined}
                     alt={user.name || "User"}
                   />
-                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
                     {getInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
+                  <span className="truncate font-medium">
                     {user.name || "User"}
                   </span>
                   <span className="truncate text-xs text-muted-foreground">
@@ -106,15 +106,15 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  <Settings />
-                  Settings
+                <Link href="/settings/profile">
+                  <User />
+                  Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/settings/account">
-                  <BadgeCheck />
-                  Account
+                <Link href="/settings">
+                  <Settings />
+                  Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
