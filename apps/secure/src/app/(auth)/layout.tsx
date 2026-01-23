@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-blue-600 to-blue-800 p-12 flex-col justify-between">
         <div className="flex items-center gap-3">
           <Shield className="h-10 w-10 text-white" />
           <span className="text-2xl font-bold text-white">SecureVault</span>
@@ -44,12 +44,12 @@ export default function AuthLayout({
       </div>
 
       {/* Right side - Auth forms */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-950">
+      <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 justify-center mb-8">
             <Shield className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900 dark:text-white">
+            <span className="text-xl font-bold text-foreground">
               SecureVault
             </span>
           </div>

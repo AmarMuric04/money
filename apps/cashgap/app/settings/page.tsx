@@ -318,16 +318,17 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowExportModal(false)}
-                  className="flex-1 rounded-xl"
+                  className="flex-1 h-12 rounded-xl"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleExport}
                   disabled={isExporting}
-                  className="flex-1 rounded-xl"
+                  isLoading={isExporting}
+                  className="flex-1 h-12 rounded-xl"
                 >
-                  {isExporting ? "Exporting..." : "Export"}
+                  Export
                 </Button>
               </div>
             </div>
@@ -358,7 +359,7 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 rounded-xl"
+                  className="flex-1 h-12 rounded-xl"
                 >
                   Cancel
                 </Button>
@@ -366,9 +367,10 @@ export default function SettingsPage() {
                   variant="destructive"
                   onClick={handleDeleteAllData}
                   disabled={isDeleting}
-                  className="flex-1 rounded-xl"
+                  isLoading={isDeleting}
+                  className="flex-1 h-12 rounded-xl"
                 >
-                  {isDeleting ? "Deleting..." : "Delete All"}
+                  Delete All
                 </Button>
               </div>
             </div>

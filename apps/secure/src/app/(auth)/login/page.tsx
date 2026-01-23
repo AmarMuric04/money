@@ -189,10 +189,15 @@ function LoginContent() {
         if (result?.error) {
           // Map NextAuth errors to user-friendly messages
           const errorLower = result.error.toLowerCase();
-          
+
           // Handle CSRF and session errors
-          if (errorLower.includes("csrf") || errorLower.includes("missingcsrf")) {
-            throw new Error("Session expired. Please refresh the page and try again.");
+          if (
+            errorLower.includes("csrf") ||
+            errorLower.includes("missingcsrf")
+          ) {
+            throw new Error(
+              "Session expired. Please refresh the page and try again.",
+            );
           } else if (result.error === "CredentialsSignin") {
             throw new Error("Invalid email or password. Please try again.");
           } else if (result.error === "Configuration") {
@@ -201,7 +206,10 @@ function LoginContent() {
             );
           } else if (result.error === "AccessDenied") {
             throw new Error("Access denied. Your account may be disabled.");
-          } else if (result.error === "Callback" || errorLower.includes("callback")) {
+          } else if (
+            result.error === "Callback" ||
+            errorLower.includes("callback")
+          ) {
             throw new Error("Authentication failed. Please try again.");
           } else {
             // Filter out any other technical errors
