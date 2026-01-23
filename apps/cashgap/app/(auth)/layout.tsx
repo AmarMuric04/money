@@ -19,19 +19,6 @@ export default function AuthLayout({
     }
   }, [status, router]);
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-            <Wallet className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="text-xl font-bold">Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex">
       {/* Left side - Branding */}

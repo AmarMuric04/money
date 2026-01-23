@@ -4,7 +4,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button, useToast } from "@repo/ui";
-import { Mail, AlertCircle, ArrowLeft } from "lucide-react";
+import { RegisterForm } from "@repo/auth";
+import { Mail, ArrowLeft } from "lucide-react";
 
 // Google icon component
 function GoogleIcon({ className }: { className?: string }) {
@@ -107,16 +108,10 @@ export default function RegisterPage() {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [pendingVerification, setPendingVerification] =
     useState<PendingVerification | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [resendCountdown, setResendCountdown] = useState(0);
-
-  // Form state
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Countdown timer for resend
   useEffect(() => {
@@ -143,53 +138,42 @@ export default function RegisterPage() {
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const adapter = {
+    signUp: async ({ email, password }: { email: string; password: string }) => {
+      setIsLoading(true);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+      try {
+        const response = await fetch("/api/auth/verify-email/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
+        const result = await response.json();
 
-    setIsLoading(true);
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to send verification email");
+        }
 
-    try {
-      const response = await fetch("/api/auth/verify-email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+        setPendingVerification({
+          token: result.token,
+          email,
+          password,
+        });
 
-      const result = await response.json();
+        addToast({
+          type: "success",
+          title: "Verification email sent!",
+          message: "Please check your inbox for the verification code",
+        });
 
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to send verification email");
+        setResendCountdown(60);
+      } catch (err) {
+        throw err instanceof Error ? err : new Error("Registration failed");
+      } finally {
+        setIsLoading(false);
       }
-
-      setPendingVerification({
-        token: result.token,
-        email,
-        password,
-      });
-
-      addToast({
-        type: "success",
-        title: "Verification email sent!",
-        message: "Please check your inbox for the verification code",
-      });
-
-      setResendCountdown(60);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
-    } finally {
-      setIsLoading(false);
-    }
+    },
   };
 
   const handleVerifyCode = useCallback(
@@ -208,7 +192,6 @@ export default function RegisterPage() {
       }
 
       setIsLoading(true);
-      setError(null);
 
       try {
         const response = await fetch("/api/auth/verify-email/confirm", {
@@ -245,7 +228,11 @@ export default function RegisterPage() {
 
         window.location.href = "/dashboard";
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Verification failed");
+        addToast({
+          type: "error",
+          title: "Verification failed",
+          message: err instanceof Error ? err.message : "Verification failed",
+        });
         setIsLoading(false);
       }
     },
@@ -298,7 +285,6 @@ export default function RegisterPage() {
   const handleBackToForm = useCallback(() => {
     setPendingVerification(null);
     setVerificationCode("");
-    setError(null);
   }, []);
 
   // Show verification step if we have pending verification
@@ -327,13 +313,6 @@ export default function RegisterPage() {
             {pendingVerification.email}
           </p>
         </div>
-
-        {error && (
-          <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
 
         <form onSubmit={handleVerifyCode} className="space-y-6">
           <div>
@@ -414,78 +393,7 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Register Form */}
-      <form onSubmit={handleRegister} className="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-foreground mb-2"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-foreground mb-2"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-            className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-            placeholder="At least 8 characters"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-foreground mb-2"
-          >
-            Confirm Password
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-            placeholder="Confirm your password"
-          />
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full h-12 rounded-xl"
-          isLoading={isLoading}
-        >
-          Continue
-        </Button>
-      </form>
+      <RegisterForm adapter={adapter} />
 
       {/* Sign in link */}
       <div className="text-center">

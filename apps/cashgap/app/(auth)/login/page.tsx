@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button, useToast } from "@repo/ui";
-import { AlertCircle } from "lucide-react";
+import { LoginForm } from "@repo/auth";
+import { useRouter } from "next/navigation";
 
 // Google icon component
 function GoogleIcon({ className }: { className?: string }) {
@@ -32,13 +33,8 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function LoginPage() {
   const { addToast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Form state
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
@@ -54,12 +50,8 @@ export default function LoginPage() {
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
+  const adapter = {
+    signIn: async ({ email, password }: { email: string; password: string }) => {
       const result = await signIn("credentials", {
         email,
         password,
@@ -67,9 +59,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
-        setIsLoading(false);
-        return;
+        throw new Error("Invalid email or password");
       }
 
       addToast({
@@ -79,10 +69,7 @@ export default function LoginPage() {
       });
 
       window.location.href = "/dashboard";
-    } catch {
-      setError("An error occurred. Please try again.");
-      setIsLoading(false);
-    }
+    },
   };
 
   return (
@@ -118,67 +105,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Login Form */}
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-foreground mb-2"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-foreground"
-            >
-              Password
-            </label>
-            <Link
-              href="/forgot-password"
-              className="text-sm text-primary hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-            placeholder="Enter your password"
-          />
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full h-12 rounded-xl"
-          isLoading={isLoading}
-        >
-          Sign in
-        </Button>
-      </form>
+      <LoginForm adapter={adapter} onSuccess={() => router.push("/dashboard")} />
 
       {/* Sign up link */}
       <div className="text-center">
