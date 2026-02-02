@@ -121,14 +121,7 @@ export default function VaultLayout({
     // Check every 30 seconds
     const intervalId = setInterval(checkEncryptionKey, 30000);
     return () => clearInterval(intervalId);
-  }, [
-    status,
-    isInitialized,
-    encryptionKey,
-    setEncryptionKey,
-    router,
-    session,
-  ]);
+  }, [status, isInitialized, encryptionKey, setEncryptionKey, router, session]);
 
   // Redirect to login if not authenticated
   if (status === "unauthenticated") {

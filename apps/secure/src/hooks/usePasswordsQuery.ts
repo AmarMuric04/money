@@ -339,8 +339,11 @@ export function usePasswordsQuery(filters: PasswordFilters = {}) {
           // Key exists in storage, verify it matches what we're using
           try {
             const keyData = JSON.parse(storedKeyData);
-            const storedKey = await crypto.subtle.exportKey("jwk", encryptionKey);
-            
+            const storedKey = await crypto.subtle.exportKey(
+              "jwk",
+              encryptionKey,
+            );
+
             if (JSON.stringify(keyData) !== JSON.stringify(storedKey)) {
               console.warn(
                 "[usePasswordsQuery] Encryption key mismatch detected! The key in memory differs from sessionStorage.",
@@ -348,7 +351,10 @@ export function usePasswordsQuery(filters: PasswordFilters = {}) {
               );
             }
           } catch (err) {
-            console.error("[usePasswordsQuery] Failed to verify encryption key:", err);
+            console.error(
+              "[usePasswordsQuery] Failed to verify encryption key:",
+              err,
+            );
           }
         }
 

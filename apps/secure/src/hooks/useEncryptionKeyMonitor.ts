@@ -40,7 +40,9 @@ export function useEncryptionKeyMonitor() {
         ["encrypt", "decrypt"],
       );
 
-      console.log("[EncryptionKeyMonitor] Successfully restored encryption key");
+      console.log(
+        "[EncryptionKeyMonitor] Successfully restored encryption key",
+      );
       setEncryptionKey(key);
       return true;
     } catch (error) {
