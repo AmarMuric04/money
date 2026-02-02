@@ -330,7 +330,30 @@ export function usePasswordsQuery(filters: PasswordFilters = {}) {
         console.error(
           `[usePasswordsQuery] CRITICAL: All ${vault.passwords.length} passwords failed to decrypt!`,
           "This usually means passwords were encrypted with a different key (e.g., during registration with wrong salt).",
-          "You may need to delete existing passwords from the database and create new ones.",
+          "Checking if encryption key needs to be restored...",
+        );
+
+        // Check if we can restore the key from sessionStorage
+        const storedKeyData = sessionStorage.getItem("vault_key");
+        if (storedKeyData && encryptionKey) {
+          // Key exists in storage, verify it matches what we're using
+          try {
+            const keyData = JSON.parse(storedKeyData);
+            const storedKey = await crypto.subtle.exportKey("jwk", encryptionKey);
+            
+            if (JSON.stringify(keyData) !== JSON.stringify(storedKey)) {
+              console.warn(
+                "[usePasswordsQuery] Encryption key mismatch detected! The key in memory differs from sessionStorage.",
+                "This may require re-login to restore the correct key.",
+              );
+            }
+          } catch (err) {
+            console.error("[usePasswordsQuery] Failed to verify encryption key:", err);
+          }
+        }
+
+        throw new Error(
+          "Failed to decrypt passwords. Please try refreshing the page or logging in again.",
         );
       } else if (failedDecryptions > 0) {
         console.warn(
@@ -373,6 +396,25 @@ export function usePasswordsQuery(filters: PasswordFilters = {}) {
     enabled: !isLocked && !!encryptionKey,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    retry: (failureCount, error) => {
+      // If decryption fails, try to restore the key from sessionStorage and retry once
+      if (failureCount === 0 && error instanceof Error) {
+        if (
+          error.message.includes("decrypt") ||
+          error.message.includes("OperationError")
+        ) {
+          console.log(
+            "[usePasswordsQuery] Decryption failed, attempting to restore encryption key...",
+          );
+          const storedKeyData = sessionStorage.getItem("vault_key");
+          if (storedKeyData && !encryptionKey) {
+            return true; // Retry once after key restoration
+          }
+        }
+      }
+      return false; // Don't retry for other errors
+    },
+    retryDelay: 500, // Wait 500ms before retrying
   });
 
   // Derived data

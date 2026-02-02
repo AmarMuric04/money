@@ -7,13 +7,30 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle2,
+  Edit,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+  MoreVertical,
 } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
+import {
+  Button,
+  DashboardWrapper,
+  Skeleton,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  useToast,
+} from "@repo/ui";
 import { formatCurrency } from "@/lib/utils";
 import { useDashboardData } from "@/hooks";
 import type { Subscription } from "@/stores";
 import { SectionHeader } from "@/components/ui/section-header";
+import { useFinanceStore } from "@/stores";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/hooks/use-finance";
 
 export default function SubscriptionsPage() {
   const { data, isLoading } = useDashboardData();
@@ -231,14 +248,61 @@ export default function SubscriptionsPage() {
 
 // Subscription Card Component
 function SubscriptionCard({ subscription }: { subscription: Subscription }) {
+  const { deleteSubscription, toggleSubscriptionActive } = useFinanceStore();
+  const { addToast } = useToast();
+  const queryClient = useQueryClient();
+
   const nextBilling = new Date(subscription.nextBillingDate);
   const formattedDate = nextBilling.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
+    year: "numeric",
   });
 
+  const handleDelete = async () => {
+    try {
+      await deleteSubscription(subscription.id);
+      // Invalidate dashboard query to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+      addToast({
+        type: "success",
+        title: "Subscription deleted",
+        message: `"${subscription.name}" has been deleted`,
+      });
+    } catch (error) {
+      console.error("Failed to delete subscription:", error);
+      addToast({
+        type: "error",
+        title: "Failed to delete",
+        message: "Please try again.",
+      });
+    }
+  };
+
+  const handleToggle = async () => {
+    try {
+      await toggleSubscriptionActive(subscription.id);
+      // Invalidate dashboard query to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+      addToast({
+        type: "success",
+        title: subscription.active ? "Paused" : "Resumed",
+        message: subscription.active
+          ? `"${subscription.name}" has been paused`
+          : `"${subscription.name}" is now active`,
+      });
+    } catch (error) {
+      console.error("Failed to toggle subscription:", error);
+      addToast({
+        type: "error",
+        title: "Failed to update",
+        message: "Please try again.",
+      });
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm">
+    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm hover:bg-muted/50 transition-colors">
       <div className="flex items-center gap-4">
         <div className="h-12 w-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
           <CreditCard className="h-6 w-6 text-orange-500" />
@@ -258,13 +322,50 @@ function SubscriptionCard({ subscription }: { subscription: Subscription }) {
           </p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-xl font-bold text-orange-600">
-          {formatCurrency(subscription.amount)}
-          <span className="text-sm font-normal text-muted-foreground">
-            /{subscription.frequency === "monthly" ? "mo" : "yr"}
-          </span>
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <p className="text-xl font-bold text-orange-600">
+            {formatCurrency(subscription.amount)}
+            <span className="text-sm font-normal text-muted-foreground">
+              /{subscription.frequency === "monthly" ? "mo" : "yr"}
+            </span>
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-2xl transition-all">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-lg">
+            <DropdownMenuItem onClick={handleToggle}>
+              {subscription.active ? (
+                <>
+                  <ToggleRight className="h-4 w-4 mr-2" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <ToggleLeft className="h-4 w-4 mr-2" />
+                  Resume
+                </>
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/subscriptions/${subscription.id}/edit`}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

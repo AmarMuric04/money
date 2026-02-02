@@ -10,3 +10,4 @@ export {
   useCategoriesQuery,
   usePrefetchCategories,
 } from "./useCategoriesQuery";
+export { useEncryptionKeyMonitor } from "./useEncryptionKeyMonitor";

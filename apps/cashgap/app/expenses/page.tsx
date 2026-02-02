@@ -13,13 +13,28 @@ import {
   Gamepad2,
   Heart,
   ChevronDown,
+  Edit,
+  Trash2,
+  MoreVertical,
 } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
-import { formatCurrency, cn } from "@/lib/utils";
+import {
+  Button,
+  DashboardWrapper,
+  Skeleton,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  useToast,
+} from "@repo/ui";
+import { formatCurrency, cn, formatDate } from "@/lib/utils";
 import { useDashboardData } from "@/hooks";
 import type { Expense, ExpenseCategory } from "@/stores";
 import { useState } from "react";
+import { useFinanceStore } from "@/stores";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/hooks/use-finance";
 import {
   Collapsible,
   CollapsibleContent,
@@ -340,11 +355,34 @@ export default function ExpensesPage() {
 
 // Expense Card Component
 function ExpenseCard({ expense }: { expense: Expense }) {
+  const { deleteExpense } = useFinanceStore();
+  const { addToast } = useToast();
+  const queryClient = useQueryClient();
   const config = categoryConfig[expense.category];
   const Icon = config.icon;
 
+  const handleDelete = async () => {
+    try {
+      await deleteExpense(expense.id);
+      // Invalidate dashboard query to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+      addToast({
+        type: "success",
+        title: "Expense deleted",
+        message: `"${expense.name}" has been deleted`,
+      });
+    } catch (error) {
+      console.error("Failed to delete expense:", error);
+      addToast({
+        type: "error",
+        title: "Failed to delete",
+        message: "Please try again.",
+      });
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm">
+    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm hover:bg-muted/50 transition-colors">
       <div className="flex items-center gap-4">
         <div
           className={`h-12 w-12 rounded-2xl ${config.bg} flex items-center justify-center`}
@@ -354,14 +392,38 @@ function ExpenseCard({ expense }: { expense: Expense }) {
         <div>
           <h3 className="font-semibold">{expense.name}</h3>
           <p className="text-sm text-muted-foreground">
-            {config.label} • {expense.date}
+            {config.label} • {formatDate(expense.date)}
           </p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-xl font-bold text-red-600">
-          -{formatCurrency(expense.amount)}
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <p className="text-xl font-bold text-red-600">
+            -{formatCurrency(expense.amount)}
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-2xl transition-all">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-lg">
+            <DropdownMenuItem asChild>
+              <Link href={`/expenses/${expense.id}/edit`}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

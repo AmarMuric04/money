@@ -178,14 +178,28 @@ export const useVaultStore = create<VaultState>()((set, get) => ({
   lastSync: null,
 
   // Key management
-  setEncryptionKey: (key) => set({ encryptionKey: key, isLocked: false }),
+  setEncryptionKey: (key) => {
+    set({ encryptionKey: key, isLocked: false });
+    // Persist to sessionStorage to survive page refreshes and tab duplication
+    crypto.subtle
+      .exportKey("jwk", key)
+      .then((exportedKey) => {
+        sessionStorage.setItem("vault_key", JSON.stringify(exportedKey));
+      })
+      .catch((err) => {
+        console.error("[VaultStore] Failed to persist encryption key:", err);
+      });
+  },
 
-  lockVault: () =>
+  lockVault: () => {
     set({
       encryptionKey: null,
       passwords: [],
       isLocked: true,
-    }),
+    });
+    // Clear from sessionStorage when locking
+    sessionStorage.removeItem("vault_key");
+  },
 
   // Fetch and decrypt entire vault
   fetchVault: async () => {

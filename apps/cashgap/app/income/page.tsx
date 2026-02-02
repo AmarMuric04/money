@@ -1,13 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { TrendingUp, Plus, DollarSign, Calendar, Clock } from "lucide-react";
+import {
+  TrendingUp,
+  Plus,
+  DollarSign,
+  Calendar,
+  Clock,
+  Edit,
+  Trash2,
+  MoreVertical,
+} from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { Button, DashboardWrapper, Skeleton } from "@repo/ui";
-import { formatCurrency } from "@/lib/utils";
+import {
+  Button,
+  DashboardWrapper,
+  Skeleton,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  useToast,
+} from "@repo/ui";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { useDashboardData } from "@/hooks";
 import type { Income } from "@/stores";
 import { SectionHeader } from "@/components/ui/section-header";
+import { useFinanceStore } from "@/stores";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/hooks/use-finance";
 
 export default function IncomePage() {
   const { data, isLoading } = useDashboardData();
@@ -211,14 +232,38 @@ function StatCard({
 
 // Income Card Component
 function IncomeCard({ income }: { income: Income }) {
+  const { deleteIncome } = useFinanceStore();
+  const { addToast } = useToast();
+  const queryClient = useQueryClient();
+
   const frequencyLabels = {
     once: "One-time",
     monthly: "Monthly",
     yearly: "Yearly",
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteIncome(income.id);
+      // Invalidate dashboard query to refetch fresh data
+      await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+      addToast({
+        type: "success",
+        title: "Income deleted",
+        message: `"${income.name}" has been deleted`,
+      });
+    } catch (error) {
+      console.error("Failed to delete income:", error);
+      addToast({
+        type: "error",
+        title: "Failed to delete",
+        message: "Please try again.",
+      });
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm">
+    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm hover:bg-muted/50 transition-colors">
       <div className="flex items-center gap-4">
         <div className="h-12 w-12 rounded-2xl bg-green-500/10 flex items-center justify-center">
           <TrendingUp className="h-6 w-6 text-green-500" />
@@ -226,14 +271,38 @@ function IncomeCard({ income }: { income: Income }) {
         <div>
           <h3 className="font-semibold">{income.name}</h3>
           <p className="text-sm text-muted-foreground">
-            {frequencyLabels[income.frequency]} • {income.date}
+            {frequencyLabels[income.frequency]} • {formatDate(income.date)}
           </p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-xl font-bold text-green-600">
-          +{formatCurrency(income.amount)}
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <p className="text-xl font-bold text-green-600">
+            +{formatCurrency(income.amount)}
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-2xl transition-all">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-lg">
+            <DropdownMenuItem asChild>
+              <Link href={`/income/${income.id}/edit`}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

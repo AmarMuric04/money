@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useVaultStore } from "@/stores";
+import { useEncryptionKeyMonitor } from "@/hooks";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardLayout } from "@repo/ui";
 
@@ -17,6 +18,9 @@ export default function VaultLayout({
   const [isInitialized, setIsInitialized] = useState(false);
 
   const { encryptionKey, setEncryptionKey } = useVaultStore();
+
+  // Monitor and maintain encryption key
+  useEncryptionKeyMonitor();
 
   // Initialize encryption key
   useEffect(() => {
@@ -56,9 +60,7 @@ export default function VaultLayout({
             true,
             ["encrypt", "decrypt"],
           );
-          const exportedKey = await crypto.subtle.exportKey("jwk", newKey);
-          sessionStorage.setItem("vault_key", JSON.stringify(exportedKey));
-          setEncryptionKey(newKey);
+          setEncryptionKey(newKey); // This will auto-persist to sessionStorage
           setIsInitialized(true);
         } else {
           // Credential users: encryption key is lost, must re-login to derive it
@@ -76,6 +78,57 @@ export default function VaultLayout({
 
     initializeVaultKey();
   }, [status, session, encryptionKey, setEncryptionKey, router]);
+
+  // Periodically check and restore encryption key from sessionStorage
+  // This handles edge cases where the Zustand state is cleared but sessionStorage persists
+  useEffect(() => {
+    if (status !== "authenticated" || !isInitialized) return;
+
+    const checkEncryptionKey = async () => {
+      // If key is missing from store but exists in sessionStorage, restore it
+      if (!encryptionKey) {
+        const storedKeyData = sessionStorage.getItem("vault_key");
+        if (storedKeyData) {
+          try {
+            const keyData = JSON.parse(storedKeyData);
+            const key = await crypto.subtle.importKey(
+              "jwk",
+              keyData,
+              { name: "AES-GCM", length: 256 },
+              true,
+              ["encrypt", "decrypt"],
+            );
+            console.log(
+              "[VaultLayout] Restored encryption key from sessionStorage",
+            );
+            setEncryptionKey(key);
+          } catch (error) {
+            console.error(
+              "[VaultLayout] Failed to restore key from sessionStorage:",
+              error,
+            );
+            sessionStorage.removeItem("vault_key");
+            // Force re-login for credential users
+            if (session?.user?.provider !== "google") {
+              await signOut({ redirect: false });
+              router.push("/login?reason=session_expired");
+            }
+          }
+        }
+      }
+    };
+
+    // Check every 30 seconds
+    const intervalId = setInterval(checkEncryptionKey, 30000);
+    return () => clearInterval(intervalId);
+  }, [
+    status,
+    isInitialized,
+    encryptionKey,
+    setEncryptionKey,
+    router,
+    session,
+  ]);
 
   // Redirect to login if not authenticated
   if (status === "unauthenticated") {
