@@ -132,9 +132,51 @@ export default function VaultLayout({
   // Show loading while initializing
   if (status === "loading" || (status === "authenticated" && !isInitialized)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="animate-pulse text-gray-500 dark:text-gray-400">
-          Unlocking vault...
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+          {/* Animated lock icon */}
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl animate-pulse" />
+            <div className="relative h-20 w-20 rounded-2xl bg-linear-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+              <svg
+                className="h-10 w-10 text-primary-foreground animate-pulse"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Loading text */}
+          <div className="flex flex-col items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground">
+              Unlocking vault
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Initializing encryption keys...
+            </p>
+          </div>
+
+          {/* Loading dots */}
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                style={{
+                  animationDelay: `${i * 0.15}s`,
+                  animationDuration: "0.6s",
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );
