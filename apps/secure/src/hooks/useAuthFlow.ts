@@ -79,16 +79,10 @@ export function useAuthFlow(): UseAuthFlowReturn {
         }
 
         // Step 2: Derive keys from master password using the fetched salt
-        const { authKey, encryptionKey } = await deriveKeys(
+        const { authHash, encryptionKey } = await deriveKeys(
           masterPassword,
           salt,
         );
-
-        // Convert authKey to hex string for transmission
-        const authKeyBytes = await crypto.subtle.exportKey("raw", authKey);
-        const authHash = Array.from(new Uint8Array(authKeyBytes))
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("");
 
         // Step 3: Call login API
         const result = await authStore.login(email, authHash);
@@ -124,7 +118,21 @@ export function useAuthFlow(): UseAuthFlowReturn {
           return true;
         }
 
-        // Step 4: Set up vault with encryption key
+        // Step 4: Establish NextAuth session for vault API access
+        const signInResult = await signIn("credentials", {
+          email,
+          authHash,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          console.error("Failed to establish session:", signInResult.error);
+          setError("Failed to establish secure session. Please try again.");
+          setIsLoading(false);
+          return false;
+        }
+
+        // Step 5: Set up vault with encryption key
         try {
           vaultStore.setEncryptionKey(encryptionKey);
 
@@ -141,7 +149,7 @@ export function useAuthFlow(): UseAuthFlowReturn {
           return false;
         }
 
-        // Step 5: Fetch and decrypt vault
+        // Step 6: Fetch and decrypt vault
         try {
           await vaultStore.fetchVault();
         } catch (err) {
