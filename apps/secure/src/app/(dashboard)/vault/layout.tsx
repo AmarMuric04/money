@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useVaultStore } from "@/stores";
 import { useEncryptionKeyMonitor } from "@/hooks";
 import { AppSidebar } from "@/components/app-sidebar";
+import { VaultPasswordPrompt } from "@/components/vault-password-prompt";
 import { DashboardLayout } from "@repo/ui";
 
 export default function VaultLayout({
@@ -16,6 +17,7 @@ export default function VaultLayout({
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [needsVaultPassword, setNeedsVaultPassword] = useState(false);
 
   const { encryptionKey, setEncryptionKey } = useVaultStore();
 
@@ -49,18 +51,13 @@ export default function VaultLayout({
         }
 
         // No stored key found
-        // For OAuth users: generate a new random key (they don't have password-derived keys)
+        // For OAuth users: prompt for vault password to derive a deterministic key
         // For credential users: auto-logout and redirect to login to derive key from password
         const isOAuthUser = session?.user?.provider === "google";
 
         if (isOAuthUser) {
-          // OAuth users can use a new random key - their passwords will be fresh
-          const newKey = await crypto.subtle.generateKey(
-            { name: "AES-GCM", length: 256 },
-            true,
-            ["encrypt", "decrypt"],
-          );
-          setEncryptionKey(newKey); // This will auto-persist to sessionStorage
+          // OAuth users need to enter their vault password to derive the encryption key
+          setNeedsVaultPassword(true);
           setIsInitialized(true);
         } else {
           // Credential users: encryption key is lost, must re-login to derive it
@@ -123,10 +120,19 @@ export default function VaultLayout({
     return () => clearInterval(intervalId);
   }, [status, isInitialized, encryptionKey, setEncryptionKey, router, session]);
 
+  const handleVaultUnlock = useCallback(() => {
+    setNeedsVaultPassword(false);
+  }, []);
+
   // Redirect to login if not authenticated
   if (status === "unauthenticated") {
     router.push("/login");
     return null;
+  }
+
+  // Show vault password prompt for OAuth users who need to set up or enter their vault password
+  if (needsVaultPassword) {
+    return <VaultPasswordPrompt onUnlock={handleVaultUnlock} />;
   }
 
   // Show loading while initializing

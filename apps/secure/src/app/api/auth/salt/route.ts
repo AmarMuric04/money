@@ -68,9 +68,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // OAuth users don't have a salt - they should use OAuth login
-    if (!user.authSalt || user.authProvider !== "credentials") {
-      // Return a fake salt to prevent user enumeration
+    // Users without a salt get a fake one (prevents user enumeration)
+    // OAuth users who have set up a vault password WILL have authSalt
+    if (!user.authSalt) {
       const fakeEncoder = new TextEncoder();
       const fakeData = fakeEncoder.encode(
         data.email + process.env.NEXTAUTH_SECRET,
