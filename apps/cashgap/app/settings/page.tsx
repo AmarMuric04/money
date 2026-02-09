@@ -11,10 +11,12 @@ import {
   FileText,
   LogOut,
   Settings2,
+  Palette,
 } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, Modal } from "@repo/ui";
 import { useFinanceStore } from "@/stores";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function SettingsPage() {
   const { incomes, expenses, subscriptions } = useFinanceStore();
@@ -178,6 +180,24 @@ export default function SettingsPage() {
             <p className="text-muted-foreground text-lg">
               Manage your account and preferences
             </p>
+          </div>
+
+          {/* Appearance Section */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-2 rounded-xl bg-muted">
+                  <Palette className="w-5 h-5 text-foreground" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Appearance</p>
+                  <p className="text-sm text-muted-foreground">
+                    Choose light, dark, or system theme
+                  </p>
+                </div>
+              </div>
+              <ThemeToggle />
+            </div>
           </div>
 
           <div className="space-y-2">

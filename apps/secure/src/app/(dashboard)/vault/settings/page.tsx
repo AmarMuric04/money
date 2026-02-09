@@ -13,9 +13,11 @@ import {
   FileJson,
   FileText,
   Lock,
+  Palette,
 } from "lucide-react";
 import { Button, DashboardWrapper, Modal } from "@repo/ui";
 import { usePasswordsQuery, useCategoriesQuery } from "@/hooks";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function SettingsPage() {
   const { passwords } = usePasswordsQuery();
@@ -175,6 +177,24 @@ export default function SettingsPage() {
           <p className="text-muted-foreground text-lg">
             Manage your account and preferences
           </p>
+        </div>
+
+        {/* Appearance Section */}
+        <div className="rounded-lg border border-border bg-card p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2 rounded-lg bg-muted">
+                <Palette className="w-5 h-5 text-foreground" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">Appearance</p>
+                <p className="text-sm text-muted-foreground">
+                  Choose light, dark, or system theme
+                </p>
+              </div>
+            </div>
+            <ThemeToggle />
+          </div>
         </div>
 
         <div className="space-y-2">
