@@ -1,8 +1,7 @@
 # money
 
-A pnpm + Turborepo monorepo for two personal apps (a finance tracker and a password
-vault) that share UI and auth
-packages.
+A pnpm + Turborepo monorepo for two personal apps, a finance tracker and a
+password vault, that share UI and auth packages.
 
 Live (CashGap): https://keep-track-of-your-finances.vercel.app
 
@@ -11,8 +10,8 @@ Live (CashGap): https://keep-track-of-your-finances.vercel.app
 - `apps/cashgap` (CashGap): track income, expenses and subscriptions and see
   the gap between them on a dashboard. Email/password and Google sign-in with
   email verification.
-- `apps/secure` (SecureVault): an encrypted password vault. The live version is deployed from
-  its own repo (`AmarMuric04/secure`) at https://keep-your-passwords-safe.vercel.app.
+- `apps/secure` (SecureVault): an encrypted password vault. The live version is
+  deployed from its own repo (`AmarMuric04/secure`) at https://keep-your-passwords-safe.vercel.app.
 - `apps/web`, `apps/docs`: leftover Turborepo starter apps.
 
 ## Packages
