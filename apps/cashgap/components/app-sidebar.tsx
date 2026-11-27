@@ -64,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">CashGap</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    Finance Tracker
+                    Personal finance
                   </span>
                 </div>
               </Link>
@@ -80,7 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <Button asChild className="w-full rounded-xl">
               <Link href="/income/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Transaction
+                Add income
               </Link>
             </Button>
           </SidebarGroupContent>
@@ -88,7 +88,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         {/* Main Section */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground mb-2">
             Overview
           </SidebarGroupLabel>
           <SidebarGroupContent>
