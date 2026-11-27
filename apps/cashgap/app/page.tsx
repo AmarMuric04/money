@@ -88,21 +88,15 @@ function GapCalculator({ action }: { action: ReactNode }) {
   return (
     <div className="rounded-[28px] border border-border bg-card p-6 sm:p-8">
       <div className="flex items-baseline justify-between">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          One month
-        </p>
+        <p className="text-[15px] font-semibold text-foreground">One month</p>
         <p className="text-[13px] text-muted-foreground">
-          Example numbers. Change them.
+          Example numbers you can change
         </p>
       </div>
 
       <div className="mt-2">
         <AmountField label="Money in" value={income} onChange={setIncome} />
-        <AmountField
-          label="Spent"
-          value={expenses}
-          onChange={setExpenses}
-        />
+        <AmountField label="Spent" value={expenses} onChange={setExpenses} />
         <AmountField
           label="Subscriptions"
           value={subscriptions}
@@ -169,8 +163,8 @@ export default function Home() {
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
               CashGap keeps your income, spending and subscriptions in one
-              place, and shows the one number that matters: the gap between
-              what comes in and what goes out.
+              place, and shows the one number that matters: the gap between what
+              comes in and what goes out.
             </p>
           </div>
 
@@ -196,7 +190,7 @@ export default function Home() {
         {/* What you track */}
         <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
           <h2 className="max-w-xl text-3xl font-bold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-[44px]">
-            Three lists. One balance.
+            Three lists that add up to one balance.
           </h2>
           <div className="mt-10 grid gap-x-10 sm:grid-cols-3 lg:mt-14">
             {tracked.map((item) => (
@@ -204,7 +198,7 @@ export default function Home() {
                 key={item.label}
                 className="border-t border-foreground py-6 sm:pb-0"
               >
-                <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <p className="text-[15px] font-semibold text-muted-foreground">
                   {item.label}
                 </p>
                 <h3 className="mt-3 text-xl font-semibold leading-snug tracking-[-0.02em] text-foreground">
@@ -221,7 +215,7 @@ export default function Home() {
         {/* The sum */}
         <section className="bg-muted dark:bg-card">
           <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <p className="text-[15px] font-semibold text-muted-foreground">
               How the balance is worked out
             </p>
             <p className="mt-6 text-[34px] font-bold leading-[1.08] tracking-[-0.04em] text-foreground sm:text-5xl lg:text-[64px]">
@@ -235,7 +229,7 @@ export default function Home() {
               </span>
             </p>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              No forecasts and no scores. The dashboard adds up what you
+              There are no forecasts or scores. The dashboard adds up what you
               entered, lists your five latest transactions and shows which
               categories take the most.
             </p>

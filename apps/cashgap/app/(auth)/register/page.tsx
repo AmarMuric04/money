@@ -177,8 +177,8 @@ export default function RegisterPage() {
 
         addToast({
           type: "success",
-          title: "Verification email sent!",
-          message: "Please check your inbox for the verification code",
+          title: "Code sent",
+          message: `Check ${email} for a 6-digit code`,
         });
 
         setResendCountdown(60);
@@ -236,8 +236,8 @@ export default function RegisterPage() {
 
         addToast({
           type: "success",
-          title: "Account created!",
-          message: "Welcome to CashGap",
+          title: "Account created",
+          message: "Taking you to your dashboard",
         });
 
         window.location.href = "/dashboard";
@@ -280,8 +280,8 @@ export default function RegisterPage() {
 
       addToast({
         type: "success",
-        title: "Code resent!",
-        message: "Please check your inbox",
+        title: "New code sent",
+        message: "Check your inbox",
       });
 
       setResendCountdown(60);

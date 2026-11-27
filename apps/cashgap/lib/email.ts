@@ -82,7 +82,7 @@ export async function sendVerificationEmail({
         </table>
         
         <p style="margin: 24px 0 0 0; font-size: 12px; color: #94a3b8; text-align: center;">
-          © ${new Date().getFullYear()} CashGap. Take control of your finances.
+          © ${new Date().getFullYear()} CashGap
         </p>
       </td>
     </tr>

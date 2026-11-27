@@ -77,8 +77,8 @@ export default function LoginPage() {
 
       addToast({
         type: "success",
-        title: "Welcome back!",
-        message: "You have successfully signed in",
+        title: "Signed in",
+        message: "Taking you to your dashboard",
       });
 
       window.location.href = "/dashboard";

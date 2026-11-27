@@ -16,8 +16,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CashGap - Personal Finance Tracker",
-  description: "Track your income, expenses, and subscriptions with ease",
+  title: "CashGap",
+  description:
+    "Track income, expenses and subscriptions, and see what is left each month.",
 };
 
 export default function RootLayout({
