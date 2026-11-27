@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -10,7 +10,7 @@ const pill =
   "inline-flex h-11 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
 const pillInk = `${pill} bg-foreground text-background hover:bg-foreground/85`;
 const textLink =
-  "text-[15px] font-semibold text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground";
+  "font-semibold text-foreground underline decoration-foreground/30 underline-offset-4 transition-colors hover:decoration-foreground";
 
 const tracked = [
   {
@@ -69,7 +69,7 @@ function AmountField({
   );
 }
 
-function GapCalculator() {
+function GapCalculator({ action }: { action: ReactNode }) {
   const [income, setIncome] = useState("3,200");
   const [expenses, setExpenses] = useState("1,850");
   const [subscriptions, setSubscriptions] = useState("64");
@@ -127,6 +127,7 @@ function GapCalculator() {
         The same sum your dashboard runs: income minus expenses minus active
         subscriptions. Nothing here is saved.
       </p>
+      <div className="mt-6">{action}</div>
     </div>
   );
 }
@@ -145,25 +146,16 @@ export default function Home() {
         >
           CashGap
         </Link>
-        <nav className="flex items-center gap-5 sm:gap-7">
+        <nav>
           {isLoading ? (
-            <div className="h-11 w-32 animate-pulse rounded-full bg-muted" />
-          ) : isAuthenticated ? (
-            <Link href="/dashboard" className={pillInk}>
-              Dashboard
-            </Link>
+            <div className="h-5 w-16 animate-pulse rounded bg-muted" />
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="text-[15px] font-semibold text-foreground hover:text-foreground/70"
-              >
-                Log in
-              </Link>
-              <Link href="/register" className={`${pillInk} px-5`}>
-                Sign up
-              </Link>
-            </>
+            <Link
+              href={isAuthenticated ? "/dashboard" : "/login"}
+              className="text-[15px] font-semibold text-foreground transition-colors hover:text-foreground/70"
+            >
+              {isAuthenticated ? "Dashboard" : "Log in"}
+            </Link>
           )}
         </nav>
       </header>
@@ -180,29 +172,25 @@ export default function Home() {
               place, and shows the one number that matters: the gap between
               what comes in and what goes out.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-              {isLoading ? (
-                <div className="h-11 w-44 animate-pulse rounded-full bg-muted" />
-              ) : isAuthenticated ? (
-                <Link href="/dashboard" className={pillInk}>
-                  Open your dashboard
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              ) : (
-                <>
-                  <Link href="/register" className={pillInk}>
-                    Create an account
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link href="/login" className={textLink}>
-                    I already have one
-                  </Link>
-                </>
-              )}
-            </div>
           </div>
 
-          <GapCalculator />
+          <GapCalculator
+            action={
+              isLoading ? (
+                <div className="h-12 w-full animate-pulse rounded-full bg-muted" />
+              ) : (
+                <Link
+                  href={isAuthenticated ? "/dashboard" : "/register"}
+                  className={`${pillInk} h-12 w-full`}
+                >
+                  {isAuthenticated
+                    ? "See your real numbers"
+                    : "Track your real numbers"}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              )
+            }
+          />
         </section>
 
         {/* What you track */}
@@ -256,34 +244,29 @@ export default function Home() {
 
         {/* Close */}
         <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 className="text-3xl font-bold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-[44px]">
-                {isAuthenticated
-                  ? "Your numbers are waiting."
-                  : "Start with this month."}
-              </h2>
-              <p className="mt-4 max-w-md text-lg leading-relaxed text-muted-foreground">
-                {isAuthenticated
-                  ? "Pick up where you left off."
-                  : "Sign up with Google, or with an email and password."}
-              </p>
-            </div>
+          <h2 className="text-3xl font-bold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-[44px]">
+            {isAuthenticated
+              ? "Your numbers are waiting."
+              : "Start with this month."}
+          </h2>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground">
             {isAuthenticated ? (
-              <Link href="/dashboard" className={`${pillInk} self-start`}>
-                Open your dashboard
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              <>
+                Pick up where you left off in{" "}
+                <Link href="/dashboard" className={textLink}>
+                  your dashboard
+                </Link>
+                .
+              </>
             ) : (
-              <Link
-                href="/register"
-                className={`${pillInk} self-start md:self-auto`}
-              >
-                Create an account
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              <>
+                <Link href="/register" className={textLink}>
+                  Create an account
+                </Link>{" "}
+                with Google, or with an email and password.
+              </>
             )}
-          </div>
+          </p>
         </section>
       </main>
 
