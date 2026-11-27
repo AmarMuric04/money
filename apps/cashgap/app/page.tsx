@@ -223,7 +223,7 @@ export default function Home() {
         </section>
 
         {/* The sum */}
-        <section className="bg-muted">
+        <section className="bg-muted dark:bg-card">
           <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
             <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               How the balance is worked out
