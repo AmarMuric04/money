@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, cn, Input, PasswordInput, Checkbox } from "@repo/ui";
+import { Button, cn, Input, PasswordInput } from "@repo/ui";
 import { useAuth } from "./use-auth";
 
 export function RegisterForm({
@@ -17,7 +17,6 @@ export function RegisterForm({
   const { loading, error, signUp } = useAuth({ adapter });
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [agree, setAgree] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,26 +74,9 @@ export function RegisterForm({
           required
           minLength={8}
         />
-        <label className="flex items-start gap-2 text-sm">
-          <Checkbox
-            checked={agree}
-            onCheckedChange={(checked) => setAgree(checked as boolean)}
-            className="mt-0.5"
-          />
-          <span className="text-muted-foreground">
-            I agree to the{" "}
-            <a href="/terms" className={cn("text-primary hover:underline", classNames?.link)}>
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="/privacy" className={cn("text-primary hover:underline", classNames?.link)}>
-              Privacy Policy
-            </a>
-          </span>
-        </label>
         <Button
           type="submit"
-          disabled={loading || !agree}
+          disabled={loading}
           isLoading={loading}
           className={cn("w-full h-12 rounded-xl", classNames?.submit)}
         >
