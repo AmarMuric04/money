@@ -59,9 +59,10 @@ function AmountField({
         id={id}
         inputMode="decimal"
         autoComplete="off"
+        maxLength={12}
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))}
-        className="w-36 bg-transparent text-right text-2xl font-semibold tabular-nums tracking-tight text-foreground outline-none placeholder:text-muted-foreground/50 focus:underline focus:decoration-foreground/30 focus:underline-offset-8"
+        className="w-36 min-w-0 bg-transparent text-right text-2xl font-semibold tabular-nums tracking-tight text-foreground outline-none placeholder:text-muted-foreground/50 focus:underline focus:decoration-foreground/30 focus:underline-offset-8"
         placeholder="0"
       />
     </div>
@@ -76,6 +77,13 @@ function GapCalculator() {
   const left =
     parseAmount(income) - parseAmount(expenses) - parseAmount(subscriptions);
   const negative = left < 0;
+  const display = amountFormat.format(Math.abs(left));
+  const size =
+    display.length > 12
+      ? "text-3xl sm:text-4xl"
+      : display.length > 9
+        ? "text-4xl sm:text-5xl"
+        : "text-5xl sm:text-6xl";
 
   return (
     <div className="rounded-[28px] border border-border bg-card p-6 sm:p-8">
@@ -108,11 +116,11 @@ function GapCalculator() {
         </p>
         <p
           aria-live="polite"
-          className={`text-right text-5xl font-bold tabular-nums tracking-[-0.04em] sm:text-6xl ${
+          className={`min-w-0 text-right font-bold tabular-nums tracking-[-0.04em] ${size} ${
             negative ? "text-destructive" : "text-foreground"
           }`}
         >
-          {amountFormat.format(Math.abs(left))}
+          {display}
         </p>
       </div>
       <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
@@ -233,9 +241,10 @@ export default function Home() {
               <span className="text-muted-foreground"> − </span>
               expenses
               <span className="text-muted-foreground"> − </span>
-              subscriptions
-              <span className="text-muted-foreground"> = </span>
-              <span className="whitespace-nowrap">your gap.</span>
+              subscriptions{" "}
+              <span className="whitespace-nowrap">
+                <span className="text-muted-foreground">=</span> your gap.
+              </span>
             </p>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
               No forecasts and no scores. The dashboard adds up what you
@@ -247,7 +256,7 @@ export default function Home() {
 
         {/* Close */}
         <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="flex flex-col gap-8 border-t border-border pt-10 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <div>
               <h2 className="text-3xl font-bold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-[44px]">
                 {isAuthenticated
