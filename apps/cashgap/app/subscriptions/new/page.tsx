@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, useToast } from "@repo/ui";
@@ -13,9 +13,9 @@ const subscriptionCategories = [
   { value: "software", label: "Software" },
   { value: "gaming", label: "Gaming" },
   { value: "music", label: "Music" },
-  { value: "cloud", label: "Cloud Storage" },
+  { value: "cloud", label: "Cloud storage" },
   { value: "fitness", label: "Fitness" },
-  { value: "news", label: "News & Media" },
+  { value: "news", label: "News & media" },
   { value: "other", label: "Other" },
 ];
 
@@ -92,13 +92,13 @@ export default function NewSubscriptionPage() {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Subscriptions
+            Back to subscriptions
           </Link>
 
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Add Subscription
+              Add subscription
             </h1>
             <p className="text-muted-foreground text-lg">
               Track a recurring payment
@@ -113,17 +113,7 @@ export default function NewSubscriptionPage() {
               </div>
             )}
 
-            {/* Subscription Details */}
-            <div className="bg-card rounded-3xl border shadow-sm p-8 space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-orange-500/10 rounded-2xl">
-                  <CreditCard className="h-5 w-5 text-orange-500" />
-                </div>
-                <h2 className="text-xl font-semibold text-foreground">
-                  Subscription Details
-                </h2>
-              </div>
-
+            <div className="bg-card rounded-2xl border p-8 space-y-6">
               {/* Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
@@ -162,7 +152,7 @@ export default function NewSubscriptionPage() {
               {/* Frequency */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
-                  Billing Cycle
+                  Billing cycle
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {frequencies.map((freq) => (
@@ -205,10 +195,10 @@ export default function NewSubscriptionPage() {
                 </div>
               </div>
 
-              {/* Next Billing Date */}
+              {/* Next billing date */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
-                  Next Billing Date
+                  Next billing date
                 </label>
                 <input
                   type="date"
@@ -246,9 +236,9 @@ export default function NewSubscriptionPage() {
               <Button
                 type="submit"
                 isLoading={addSubscription.isPending}
-                className="flex-1 h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
+                className="flex-1 h-12 rounded-2xl text-base font-semibold"
               >
-                Add Subscription
+                Add subscription
               </Button>
             </div>
           </form>

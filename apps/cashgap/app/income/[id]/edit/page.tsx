@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { TrendingUp, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, useToast } from "@repo/ui";
@@ -14,7 +14,7 @@ const incomeCategories: { value: IncomeCategory; label: string }[] = [
   { value: "salary", label: "Salary" },
   { value: "freelance", label: "Freelance" },
   { value: "investment", label: "Investment" },
-  { value: "rental", label: "Rental Income" },
+  { value: "rental", label: "Rental income" },
   { value: "gift", label: "Gift" },
   { value: "other", label: "Other" },
 ];
@@ -116,7 +116,7 @@ export default function EditIncomePage() {
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Income
+              Back to income
             </Link>
             <p className="text-muted-foreground">Income not found</p>
           </div>
@@ -135,13 +135,13 @@ export default function EditIncomePage() {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Income
+            Back to income
           </Link>
 
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Edit Income
+              Edit income
             </h1>
             <p className="text-muted-foreground text-lg">
               Update income details
@@ -156,17 +156,7 @@ export default function EditIncomePage() {
               </div>
             )}
 
-            {/* Income Details */}
-            <div className="bg-card rounded-3xl border shadow-sm p-8 space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-green-500/10 rounded-2xl">
-                  <TrendingUp className="h-5 w-5 text-green-500" />
-                </div>
-                <h2 className="text-xl font-semibold text-foreground">
-                  Income Details
-                </h2>
-              </div>
-
+            <div className="bg-card rounded-2xl border p-8 space-y-6">
               {/* Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
@@ -289,9 +279,9 @@ export default function EditIncomePage() {
               <Button
                 type="submit"
                 isLoading={isLoading}
-                className="flex-1 h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
+                className="flex-1 h-12 rounded-2xl text-base font-semibold"
               >
-                Update Income
+                Save changes
               </Button>
             </div>
           </form>

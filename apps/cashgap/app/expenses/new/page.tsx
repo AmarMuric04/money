@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TrendingDown, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, useToast } from "@repo/ui";
@@ -10,7 +10,7 @@ import { useAddExpense } from "@/hooks";
 import type { ExpenseCategory } from "@/stores";
 
 const expenseCategories: { value: ExpenseCategory; label: string }[] = [
-  { value: "food", label: "Food & Dining" },
+  { value: "food", label: "Food & dining" },
   { value: "transport", label: "Transport" },
   { value: "shopping", label: "Shopping" },
   { value: "housing", label: "Housing" },
@@ -85,13 +85,13 @@ export default function NewExpensePage() {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Expenses
+            Back to expenses
           </Link>
 
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Add Expense
+              Add expense
             </h1>
             <p className="text-muted-foreground text-lg">
               Record a new expense
@@ -106,17 +106,7 @@ export default function NewExpensePage() {
               </div>
             )}
 
-            {/* Expense Details */}
-            <div className="bg-card rounded-3xl border shadow-sm p-8 space-y-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-red-500/10 rounded-2xl">
-                  <TrendingDown className="h-5 w-5 text-red-500" />
-                </div>
-                <h2 className="text-xl font-semibold text-foreground">
-                  Expense Details
-                </h2>
-              </div>
-
+            <div className="bg-card rounded-2xl border p-8 space-y-6">
               {/* Name */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
@@ -216,9 +206,9 @@ export default function NewExpensePage() {
               <Button
                 type="submit"
                 isLoading={addExpense.isPending}
-                className="flex-1 h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/20"
+                className="flex-1 h-12 rounded-2xl text-base font-semibold"
               >
-                Add Expense
+                Add expense
               </Button>
             </div>
           </form>

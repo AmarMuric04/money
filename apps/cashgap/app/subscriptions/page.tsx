@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import {
-  CreditCard,
   Plus,
-  Calendar,
-  AlertCircle,
-  CheckCircle2,
   Edit,
   Trash2,
   ToggleLeft,
@@ -75,9 +71,8 @@ export default function SubscriptionsPage() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm"
+                className="flex items-center gap-4 p-5 rounded-2xl border bg-card"
               >
-                <Skeleton className="h-12 w-12 rounded-2xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-8 w-28" />
@@ -93,10 +88,9 @@ export default function SubscriptionsPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm"
+                  className="flex items-center justify-between p-5 rounded-2xl border bg-card"
                 >
                   <div className="flex items-center gap-4">
-                    <Skeleton className="h-12 w-12 rounded-2xl" />
                     <div className="space-y-2">
                       <Skeleton className="h-5 w-28" />
                       <Skeleton className="h-4 w-40" />
@@ -120,28 +114,22 @@ export default function SubscriptionsPage() {
           <div>
             <h1 className="text-3xl font-bold mb-2">Subscriptions</h1>
             <p className="text-muted-foreground text-lg">
-              Manage your recurring payments
+              Recurring charges, counted as a monthly cost
             </p>
           </div>
-          <Button
-            asChild
-            className="rounded-2xl h-11 px-6 shadow-lg shadow-primary/20"
-          >
+          <Button asChild className="rounded-xl h-11 px-6">
             <Link href="/subscriptions/new">
               <Plus className="mr-2 h-4 w-4" />
-              Add Subscription
+              Add subscription
             </Link>
           </Button>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm">
-            <div className="h-12 w-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-              <CreditCard className="h-6 w-6 text-orange-500" />
-            </div>
+          <div className="p-5 rounded-2xl border bg-card">
             <div>
-              <p className="text-sm text-muted-foreground">Monthly Cost</p>
+              <p className="text-sm text-muted-foreground">Monthly cost</p>
               <p className="text-2xl font-bold">
                 {formatCurrency(monthlyTotal)}
                 <span className="text-sm font-normal text-muted-foreground">
@@ -150,12 +138,9 @@ export default function SubscriptionsPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm">
-            <div className="h-12 w-12 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-purple-500" />
-            </div>
+          <div className="p-5 rounded-2xl border bg-card">
             <div>
-              <p className="text-sm text-muted-foreground">Yearly Cost</p>
+              <p className="text-sm text-muted-foreground">Yearly cost</p>
               <p className="text-2xl font-bold">
                 {formatCurrency(yearlyTotal)}
                 <span className="text-sm font-normal text-muted-foreground">
@@ -164,10 +149,7 @@ export default function SubscriptionsPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm">
-            <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
-              <CheckCircle2 className="h-6 w-6 text-blue-500" />
-            </div>
+          <div className="p-5 rounded-2xl border bg-card">
             <div>
               <p className="text-sm text-muted-foreground">Active</p>
               <p className="text-2xl font-bold">
@@ -183,13 +165,10 @@ export default function SubscriptionsPage() {
 
         {/* Upcoming Renewals Alert */}
         {upcomingRenewals.length > 0 && (
-          <div className="flex items-center gap-4 p-5 rounded-3xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-            <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center">
-              <AlertCircle className="h-6 w-6 text-amber-500" />
-            </div>
+          <div className="p-5 rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
             <div>
               <p className="font-semibold text-amber-800 dark:text-amber-200">
-                Upcoming Renewals
+                Renewing soon
               </p>
               <p className="text-sm text-amber-700 dark:text-amber-300">
                 {upcomingRenewals.length} subscription
@@ -202,30 +181,23 @@ export default function SubscriptionsPage() {
 
         {/* Subscriptions List or Empty State */}
         {subscriptions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-3xl bg-card shadow-sm">
-            <div className="h-16 w-16 rounded-full bg-orange-500/10 flex items-center justify-center mb-4">
-              <CreditCard className="h-8 w-8 text-orange-500" />
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-2xl bg-card">
             <h3 className="text-lg font-semibold">No subscriptions yet</h3>
             <p className="text-muted-foreground mt-1 mb-4 max-w-md">
-              Add your streaming services, software licenses, gym memberships,
-              and other recurring payments to never miss a billing date.
+              Add streaming services, software, gym memberships and other
+              recurring payments, with the date each one next bills.
             </p>
-            <Button
-              asChild
-              className="rounded-2xl h-11 px-6 shadow-lg shadow-primary/20"
-            >
+            <Button asChild className="rounded-xl h-11 px-6">
               <Link href="/subscriptions/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Your First Subscription
+                Add your first subscription
               </Link>
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <SectionHeader
-              icon={<CreditCard className="h-5 w-5 text-orange-500" />}
-              title="All Subscriptions"
+              title="All subscriptions"
               count={subscriptions.length}
               countLabel={
                 subscriptions.length === 1 ? "subscription" : "subscriptions"
@@ -302,25 +274,20 @@ function SubscriptionCard({ subscription }: { subscription: Subscription }) {
   };
 
   return (
-    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm hover:bg-muted/50 transition-colors">
-      <div className="flex items-center gap-4">
-        <div className="h-12 w-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
-          <CreditCard className="h-6 w-6 text-orange-500" />
+    <div className="flex items-center justify-between p-5 rounded-2xl border bg-card hover:bg-muted/50 transition-colors">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold">{subscription.name}</h3>
+          {!subscription.active && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+              Paused
+            </span>
+          )}
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{subscription.name}</h3>
-            {!subscription.active && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                Paused
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {subscription.frequency === "monthly" ? "Monthly" : "Yearly"} •
-            Next: {formattedDate}
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          {subscription.frequency === "monthly" ? "Monthly" : "Yearly"}, next
+          bill on {formattedDate}
+        </p>
       </div>
       <div className="flex items-center gap-3">
         <div className="text-right">

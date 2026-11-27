@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface SectionHeaderProps {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   title: string;
   count?: number;
   countLabel?: string;

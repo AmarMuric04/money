@@ -1,22 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  TrendingDown,
-  Plus,
-  ShoppingBag,
-  Utensils,
-  Car,
-  Home,
-  Zap,
-  MoreHorizontal,
-  Gamepad2,
-  Heart,
-  ChevronDown,
-  Edit,
-  Trash2,
-  MoreVertical,
-} from "lucide-react";
+import { Plus, ChevronDown, Edit, Trash2, MoreVertical } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
 import {
   Button,
@@ -42,64 +27,16 @@ import {
 } from "@/components/ui/collapsible";
 import { SectionHeader } from "@/components/ui/section-header";
 
-// Category configuration
-const categoryConfig: Record<
-  ExpenseCategory,
-  {
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-    color: string;
-    bg: string;
-  }
-> = {
-  food: {
-    label: "Food & Dining",
-    icon: Utensils,
-    color: "text-orange-500",
-    bg: "bg-orange-500/10",
-  },
-  transport: {
-    label: "Transport",
-    icon: Car,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-  },
-  shopping: {
-    label: "Shopping",
-    icon: ShoppingBag,
-    color: "text-pink-500",
-    bg: "bg-pink-500/10",
-  },
-  housing: {
-    label: "Housing",
-    icon: Home,
-    color: "text-purple-500",
-    bg: "bg-purple-500/10",
-  },
-  utilities: {
-    label: "Utilities",
-    icon: Zap,
-    color: "text-yellow-500",
-    bg: "bg-yellow-500/10",
-  },
-  entertainment: {
-    label: "Entertainment",
-    icon: Gamepad2,
-    color: "text-indigo-500",
-    bg: "bg-indigo-500/10",
-  },
-  health: {
-    label: "Health",
-    icon: Heart,
-    color: "text-red-500",
-    bg: "bg-red-500/10",
-  },
-  other: {
-    label: "Other",
-    icon: MoreHorizontal,
-    color: "text-gray-500",
-    bg: "bg-gray-500/10",
-  },
+// Category labels
+const categoryConfig: Record<ExpenseCategory, { label: string }> = {
+  food: { label: "Food & dining" },
+  transport: { label: "Transport" },
+  shopping: { label: "Shopping" },
+  housing: { label: "Housing" },
+  utilities: { label: "Utilities" },
+  entertainment: { label: "Entertainment" },
+  health: { label: "Health" },
+  other: { label: "Other" },
 };
 
 export default function ExpensesPage() {
@@ -151,9 +88,8 @@ export default function ExpensesPage() {
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm"
+                className="flex items-center gap-4 p-5 rounded-2xl border bg-card"
               >
-                <Skeleton className="h-12 w-12 rounded-2xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-8 w-20" />
@@ -165,15 +101,11 @@ export default function ExpensesPage() {
           {/* Category Skeleton */}
           <div className="space-y-4">
             <Skeleton className="h-7 w-28" />
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="p-4 rounded-2xl border bg-card shadow-sm flex flex-col items-center"
-                >
-                  <Skeleton className="h-10 w-10 rounded-xl mb-2" />
-                  <Skeleton className="h-3 w-16 mb-1" />
-                  <Skeleton className="h-5 w-14" />
+            <div className="grid gap-x-10 gap-y-4 rounded-2xl border bg-card p-5 sm:grid-cols-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-5 w-16" />
                 </div>
               ))}
             </div>
@@ -186,10 +118,9 @@ export default function ExpensesPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm"
+                  className="flex items-center justify-between p-5 rounded-2xl border bg-card"
                 >
                   <div className="flex items-center gap-4">
-                    <Skeleton className="h-12 w-12 rounded-2xl" />
                     <div className="space-y-2">
                       <Skeleton className="h-5 w-32" />
                       <Skeleton className="h-4 w-40" />
@@ -213,39 +144,30 @@ export default function ExpensesPage() {
           <div>
             <h1 className="text-3xl font-bold mb-2">Expenses</h1>
             <p className="text-muted-foreground text-lg">
-              Track where your money goes
+              Everything you spend, sorted into eight categories
             </p>
           </div>
-          <Button
-            asChild
-            className="rounded-2xl h-11 px-6 shadow-lg shadow-primary/20"
-          >
+          <Button asChild className="rounded-xl h-11 px-6">
             <Link href="/expenses/new">
               <Plus className="mr-2 h-4 w-4" />
-              Add Expense
+              Add expense
             </Link>
           </Button>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm">
-            <div className="h-12 w-12 rounded-2xl bg-red-500/10 flex items-center justify-center">
-              <TrendingDown className="h-6 w-6 text-red-500" />
-            </div>
+          <div className="p-5 rounded-2xl border bg-card">
             <div>
-              <p className="text-sm text-muted-foreground">Total Expenses</p>
+              <p className="text-sm text-muted-foreground">Total expenses</p>
               <p className="text-2xl font-bold">
                 {formatCurrency(totalExpenses)}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 p-5 rounded-3xl border bg-card shadow-sm">
-            <div className="h-12 w-12 rounded-2xl bg-red-500/10 flex items-center justify-center">
-              <TrendingDown className="h-6 w-6 text-red-500" />
-            </div>
+          <div className="p-5 rounded-2xl border bg-card">
             <div>
-              <p className="text-sm text-muted-foreground">This Month</p>
+              <p className="text-sm text-muted-foreground">This month</p>
               <p className="text-2xl font-bold">
                 {formatCurrency(thisMonthTotal)}
               </p>
@@ -262,12 +184,9 @@ export default function ExpensesPage() {
           >
             <CollapsibleTrigger asChild>
               <button className="flex items-center gap-3 w-full group">
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-semibold text-foreground">
-                    By Category
-                  </h2>
-                </div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  By category
+                </h2>
                 <div className="flex-1 h-px bg-border" />
                 <span className="text-sm text-muted-foreground font-medium">
                   {Object.keys(expensesByCategory).length} categories
@@ -281,63 +200,46 @@ export default function ExpensesPage() {
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+              <dl className="grid gap-x-10 rounded-2xl border bg-card px-5 py-2 sm:grid-cols-2">
                 {(Object.keys(categoryConfig) as ExpenseCategory[]).map(
-                  (cat) => {
-                    const config = categoryConfig[cat];
-                    const amount = expensesByCategory[cat] || 0;
-                    const Icon = config.icon;
-                    return (
-                      <div
-                        key={cat}
-                        className="p-4 rounded-2xl border bg-card shadow-sm text-center"
-                      >
-                        <div
-                          className={`h-10 w-10 rounded-xl ${config.bg} flex items-center justify-center mx-auto mb-2`}
-                        >
-                          <Icon className={`h-5 w-5 ${config.color}`} />
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          {config.label}
-                        </p>
-                        <p className="font-semibold">
-                          {formatCurrency(amount)}
-                        </p>
-                      </div>
-                    );
-                  },
+                  (cat) => (
+                    <div
+                      key={cat}
+                      className="flex items-baseline justify-between gap-4 border-b border-border py-3 last:border-b-0 sm:[&:nth-last-child(2)]:border-b-0"
+                    >
+                      <dt className="text-sm text-muted-foreground">
+                        {categoryConfig[cat].label}
+                      </dt>
+                      <dd className="font-semibold tabular-nums">
+                        {formatCurrency(expensesByCategory[cat] || 0)}
+                      </dd>
+                    </div>
+                  ),
                 )}
-              </div>
+              </dl>
             </CollapsibleContent>
           </Collapsible>
         )}
 
         {/* Expenses List or Empty State */}
         {expenses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-3xl bg-card shadow-sm">
-            <div className="h-16 w-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-              <TrendingDown className="h-8 w-8 text-red-500" />
-            </div>
+          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-2xl bg-card">
             <h3 className="text-lg font-semibold">No expenses recorded</h3>
             <p className="text-muted-foreground mt-1 mb-4 max-w-md">
-              Start logging your expenses to understand your spending habits and
-              find opportunities to save.
+              Log what you spend and pick a category for each one. The totals
+              per category show up here.
             </p>
-            <Button
-              asChild
-              className="rounded-2xl h-11 px-6 shadow-lg shadow-primary/20"
-            >
+            <Button asChild className="rounded-xl h-11 px-6">
               <Link href="/expenses/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Your First Expense
+                Add your first expense
               </Link>
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <SectionHeader
-              icon={<TrendingDown className="h-5 w-5 text-red-500" />}
-              title="Recent Expenses"
+              title="All expenses"
               count={expenses.length}
               countLabel={expenses.length === 1 ? "expense" : "expenses"}
             />
@@ -359,7 +261,6 @@ function ExpenseCard({ expense }: { expense: Expense }) {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
   const config = categoryConfig[expense.category];
-  const Icon = config.icon;
 
   const handleDelete = async () => {
     try {
@@ -382,24 +283,18 @@ function ExpenseCard({ expense }: { expense: Expense }) {
   };
 
   return (
-    <div className="flex items-center justify-between p-5 rounded-3xl border bg-card shadow-sm hover:bg-muted/50 transition-colors">
-      <div className="flex items-center gap-4">
-        <div
-          className={`h-12 w-12 rounded-2xl ${config.bg} flex items-center justify-center`}
-        >
-          <Icon className={`h-6 w-6 ${config.color}`} />
-        </div>
-        <div>
-          <h3 className="font-semibold">{expense.name}</h3>
-          <p className="text-sm text-muted-foreground">
-            {config.label} • {formatDate(expense.date)}
-          </p>
-        </div>
+    <div className="flex items-center justify-between p-5 rounded-2xl border bg-card hover:bg-muted/50 transition-colors">
+      <div className="min-w-0">
+        <h3 className="font-semibold">{expense.name}</h3>
+        <p className="text-sm text-muted-foreground">{config.label}</p>
       </div>
       <div className="flex items-center gap-3">
         <div className="text-right">
           <p className="text-xl font-bold text-red-600">
             -{formatCurrency(expense.amount)}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {formatDate(expense.date)}
           </p>
         </div>
         <DropdownMenu>
