@@ -111,7 +111,7 @@ function GapCalculator() {
       </div>
 
       <div className="mt-6 flex items-end justify-between gap-4">
-        <p className="pb-1.5 text-[15px] font-semibold text-foreground">
+        <p className="shrink-0 whitespace-nowrap pb-1.5 text-[15px] font-semibold text-foreground">
           {negative ? "Short by" : "Left over"}
         </p>
         <p
