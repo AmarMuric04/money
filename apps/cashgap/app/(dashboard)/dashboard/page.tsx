@@ -1,15 +1,7 @@
 "use client";
 
 import { Card, Skeleton, DashboardWrapper } from "@repo/ui";
-import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Calendar,
-  ArrowUpDown,
-  PieChart,
-  ChevronDown,
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useDashboardData } from "@/hooks";
 import { useMemo, useState } from "react";
 import type { Income, Expense, Subscription } from "@/stores";
@@ -22,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 // Category display names and colors
 const categoryConfig: Record<string, { label: string; color: string }> = {
-  food: { label: "Food & Dining", color: "bg-blue-600" },
+  food: { label: "Food & dining", color: "bg-blue-600" },
   transport: { label: "Transportation", color: "bg-green-600" },
   shopping: { label: "Shopping", color: "bg-purple-600" },
   housing: { label: "Housing", color: "bg-orange-600" },
@@ -142,15 +134,14 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your finances</p>
+          <p className="text-muted-foreground">
+            Everything you have entered, added up
+          </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium">Total Balance</h3>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </div>
+          <Card className="rounded-2xl p-6 shadow-none">
+            <h3 className="pb-2 text-sm font-medium">Balance</h3>
             {isLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
@@ -159,15 +150,12 @@ export default function DashboardPage() {
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              Income minus expenses
+              Income minus expenses and subscriptions
             </p>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium">Income</h3>
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </div>
+          <Card className="rounded-2xl p-6 shadow-none">
+            <h3 className="pb-2 text-sm font-medium">Income</h3>
             {isLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
@@ -180,11 +168,8 @@ export default function DashboardPage() {
             </p>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium">Expenses</h3>
-              <TrendingDown className="h-4 w-4 text-red-600" />
-            </div>
+          <Card className="rounded-2xl p-6 shadow-none">
+            <h3 className="pb-2 text-sm font-medium">Expenses</h3>
             {isLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
@@ -197,11 +182,8 @@ export default function DashboardPage() {
             </p>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium">Subscriptions</h3>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </div>
+          <Card className="rounded-2xl p-6 shadow-none">
+            <h3 className="pb-2 text-sm font-medium">Subscriptions</h3>
             {isLoading ? (
               <Skeleton className="h-8 w-24" />
             ) : (
@@ -218,19 +200,14 @@ export default function DashboardPage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           {/* Recent Transactions - Collapsible */}
-          <Card className="p-6">
+          <Card className="rounded-2xl p-6 shadow-none">
             <Collapsible
               open={transactionsOpen}
               onOpenChange={setTransactionsOpen}
             >
               <CollapsibleTrigger asChild>
                 <button className="flex items-center gap-3 w-full group mb-4">
-                  <div className="flex items-center gap-2">
-                    <ArrowUpDown className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold">
-                      Recent Transactions
-                    </h3>
-                  </div>
+                  <h3 className="text-lg font-semibold">Recent transactions</h3>
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-sm text-muted-foreground font-medium">
                     {recentTransactions.length}{" "}
@@ -299,16 +276,13 @@ export default function DashboardPage() {
           </Card>
 
           {/* Spending by Category - Collapsible */}
-          <Card className="p-6">
+          <Card className="rounded-2xl p-6 shadow-none">
             <Collapsible open={categoryOpen} onOpenChange={setCategoryOpen}>
               <CollapsibleTrigger asChild>
                 <button className="flex items-center gap-3 w-full group mb-4">
-                  <div className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold">
-                      Spending by Category
-                    </h3>
-                  </div>
+                  <h3 className="text-lg font-semibold">
+                    Spending by category
+                  </h3>
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-sm text-muted-foreground font-medium">
                     {spendingByCategory.length}{" "}
