@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== "production" || process.env.MONGODB_URI) {
   }
 } else {
   // Provide a dummy promise during build
-  clientPromise = Promise.resolve(null as any);
+  clientPromise = Promise.resolve(null as unknown as MongoClient);
 }
 
 // Export a module-scoped MongoClient promise. By doing this in a

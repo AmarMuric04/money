@@ -15,14 +15,6 @@ declare module "next-auth" {
   }
 }
 
-interface ExtendedToken {
-  id?: string;
-  name?: string | null;
-  email?: string | null;
-  picture?: string | null;
-  sub?: string;
-}
-
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
