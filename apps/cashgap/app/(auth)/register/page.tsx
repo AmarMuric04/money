@@ -5,7 +5,14 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button, useToast } from "@repo/ui";
 import { RegisterForm } from "@repo/auth";
-import { Mail, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import {
+  authFormClassNames,
+  authGoogleButton,
+  authHeading,
+  authLead,
+  authTextLink,
+} from "../auth-styles";
 
 // Google icon component
 function GoogleIcon({ className }: { className?: string }) {
@@ -76,7 +83,7 @@ function VerificationCodeInput({
   };
 
   return (
-    <div className="flex gap-2 justify-center">
+    <div className="flex gap-2">
       {[0, 1, 2, 3, 4, 5].map((index) => (
         <input
           key={index}
@@ -91,7 +98,8 @@ function VerificationCodeInput({
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
           disabled={disabled}
-          className="w-12 h-14 text-center text-2xl font-semibold border border-border rounded-lg bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50"
+          aria-label={`Digit ${index + 1}`}
+          className="h-14 w-0 min-w-0 flex-1 rounded-xl border border-input bg-background text-center text-2xl font-semibold tabular-nums text-foreground outline-none focus:border-foreground focus:ring-2 focus:ring-foreground/15 disabled:opacity-50 dark:bg-input/30"
         />
       ))}
     </div>
@@ -296,35 +304,29 @@ export default function RegisterPage() {
   // Show verification step if we have pending verification
   if (pendingVerification) {
     return (
-      <div className="space-y-6">
+      <div>
         <button
           onClick={handleBackToForm}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-[15px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Back to registration</span>
+          <ArrowLeft className="h-4 w-4" />
+          Back
         </button>
 
-        <div className="text-center">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Mail className="h-10 w-10 text-primary" />
-          </div>
-          <h2 className="text-3xl font-bold text-foreground mb-3">
-            Check your email
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            We sent a verification code to
-          </p>
-          <p className="font-semibold text-foreground text-lg mt-1">
+        <h1 className={`mt-8 ${authHeading}`}>Check your email</h1>
+        <p className={authLead}>
+          We sent a 6-digit code to{" "}
+          <span className="break-all font-semibold text-foreground">
             {pendingVerification.email}
-          </p>
-        </div>
+          </span>
+          . It works for 15 minutes.
+        </p>
 
-        <form onSubmit={handleVerifyCode} className="space-y-6">
+        <form onSubmit={handleVerifyCode} className="mt-10 space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-foreground mb-4 text-center">
-              Enter verification code
-            </label>
+            <p className="mb-3 text-[15px] font-semibold text-foreground">
+              Verification code
+            </p>
             <VerificationCodeInput
               value={verificationCode}
               onChange={setVerificationCode}
@@ -334,52 +336,46 @@ export default function RegisterPage() {
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-semibold rounded-xl"
+            className="h-12 w-full rounded-full text-[15px] font-semibold"
             isLoading={isLoading}
             disabled={verificationCode.length !== 6}
           >
-            Verify & Create Account
+            Verify and create account
           </Button>
         </form>
 
-        <div className="text-center">
-          <p className="text-muted-foreground">
-            Didn&apos;t receive the code?{" "}
-            {resendCountdown > 0 ? (
-              <span className="text-muted-foreground font-medium">
-                Resend in {resendCountdown}s
-              </span>
-            ) : (
-              <button
-                onClick={handleResendCode}
-                className="text-primary hover:underline font-semibold transition-colors"
-                disabled={isLoading}
-              >
-                Resend code
-              </button>
-            )}
-          </p>
-        </div>
+        <p className="mt-8 text-[15px] text-muted-foreground">
+          Didn&apos;t get it?{" "}
+          {resendCountdown > 0 ? (
+            <span className="tabular-nums">
+              Send a new code in {resendCountdown}s
+            </span>
+          ) : (
+            <button
+              onClick={handleResendCode}
+              className={authTextLink}
+              disabled={isLoading}
+            >
+              Send a new code
+            </button>
+          )}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-foreground">
-          Create your account
-        </h2>
-        <p className="text-muted-foreground mt-2">
-          Start tracking your finances today
-        </p>
-      </div>
+    <div>
+      <h1 className={authHeading}>Create your account</h1>
+      <p className={authLead}>
+        Sign up with Google, or with an email and a password of at least 8
+        characters.
+      </p>
 
-      {/* Google Sign Up */}
       <Button
         type="button"
         variant="outline"
-        className="w-full h-12 rounded-xl gap-3"
+        className={`mt-10 ${authGoogleButton}`}
         onClick={handleGoogleSignUp}
         isLoading={isGoogleLoading}
       >
@@ -387,30 +383,20 @@ export default function RegisterPage() {
         Continue with Google
       </Button>
 
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-background text-muted-foreground">
-            Or sign up with email
-          </span>
-        </div>
+      <div className="my-6 flex items-center gap-4 text-sm text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        or with email
+        <span className="h-px flex-1 bg-border" />
       </div>
 
-      <RegisterForm adapter={adapter} />
+      <RegisterForm adapter={adapter} classNames={authFormClassNames} />
 
-      {/* Sign in link */}
-      <div className="text-center">
-        <span className="text-muted-foreground">Already have an account? </span>
-        <Link
-          href="/login"
-          className="text-primary font-semibold hover:underline"
-        >
-          Sign in
+      <p className="mt-8 text-[15px] text-muted-foreground">
+        Already have an account?{" "}
+        <Link href="/login" className={authTextLink}>
+          Log in
         </Link>
-      </div>
+      </p>
     </div>
   );
 }

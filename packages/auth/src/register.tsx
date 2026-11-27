@@ -1,15 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { Button, Input, PasswordInput, Checkbox } from "@repo/ui";
+import { Button, cn, Input, PasswordInput, Checkbox } from "@repo/ui";
 import { useAuth } from "./use-auth";
 
 export function RegisterForm({
   onSuccess,
   adapter,
+  classNames,
 }: {
   onSuccess?: () => void;
   adapter?: any;
+  /** Optional style overrides; `error` replaces the default error box classes. */
+  classNames?: { error?: string; submit?: string; link?: string };
 }) {
   const { loading, error, signUp } = useAuth({ adapter });
   const [email, setEmail] = React.useState("");
@@ -31,7 +34,13 @@ export function RegisterForm({
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 text-red-600 dark:text-red-400">
+        <div
+          role="alert"
+          className={
+            classNames?.error ??
+            "p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 text-red-600 dark:text-red-400"
+          }
+        >
           <svg
             className="h-5 w-5 shrink-0 mt-0.5"
             viewBox="0 0 24 24"
@@ -70,11 +79,11 @@ export function RegisterForm({
           />
           <span className="text-muted-foreground">
             I agree to the{" "}
-            <a href="/terms" className="text-primary hover:underline">
+            <a href="/terms" className={cn("text-primary hover:underline", classNames?.link)}>
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="text-primary hover:underline">
+            <a href="/privacy" className={cn("text-primary hover:underline", classNames?.link)}>
               Privacy Policy
             </a>
           </span>
@@ -83,7 +92,7 @@ export function RegisterForm({
           type="submit"
           disabled={loading || !agree}
           isLoading={loading}
-          className="w-full h-12 rounded-xl"
+          className={cn("w-full h-12 rounded-xl", classNames?.submit)}
         >
           Create account
         </Button>

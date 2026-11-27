@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Wallet } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function AuthLayout({
   children,
@@ -20,60 +21,34 @@ export default function AuthLayout({
   }, [status, router]);
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-primary to-primary/80 p-12 flex-col justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
-            <Wallet className="h-6 w-6 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-white">CashGap</span>
-        </div>
+    // Buttons, checkboxes and focus states use ink here, like the home page.
+    <div className="flex min-h-screen flex-col overflow-x-clip bg-background text-foreground [--primary-foreground:var(--background)] [--primary:var(--foreground)]">
+      <header className="mx-auto flex h-16 w-full max-w-6xl items-center px-4 sm:h-20 sm:px-6 lg:px-8">
+        <Link
+          href="/"
+          className="text-[19px] font-bold tracking-[-0.03em] text-foreground"
+        >
+          CashGap
+        </Link>
+      </header>
 
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold text-white leading-tight">
-            Take control
-            <br />
-            of your finances,
-            <br />
-            one step at a time.
-          </h1>
-          <p className="text-white/80 text-lg max-w-md">
-            Track income, manage expenses, and monitor subscriptions — all in
-            one beautiful platform.
-          </p>
-        </div>
+      <main className="flex flex-1 justify-center px-4 pb-20 pt-8 sm:px-6 sm:pt-16">
+        <div className="w-full max-w-[400px]">{children}</div>
+      </main>
 
-        <div className="flex items-center gap-8 text-white/80 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-400" />
-            <span>Bank-level security</span>
+      <footer className="border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <div className="flex items-baseline gap-4">
+            <span className="text-[17px] font-bold tracking-[-0.03em] text-foreground">
+              CashGap
+            </span>
+            <span className="text-sm text-muted-foreground">
+              A personal finance tracker.
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-400" />
-            <span>Real-time insights</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-400" />
-            <span>Free forever plan</span>
-          </div>
+          <ThemeToggle />
         </div>
-      </div>
-
-      {/* Right side - Auth forms */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 justify-center mb-8">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold text-foreground">CashGap</span>
-          </div>
-
-          {children}
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }

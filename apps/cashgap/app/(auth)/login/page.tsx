@@ -6,6 +6,13 @@ import { signIn } from "next-auth/react";
 import { Button, useToast } from "@repo/ui";
 import { LoginForm } from "@repo/auth";
 import { useRouter } from "next/navigation";
+import {
+  authFormClassNames,
+  authGoogleButton,
+  authHeading,
+  authLead,
+  authTextLink,
+} from "../auth-styles";
 
 // Google icon component
 function GoogleIcon({ className }: { className?: string }) {
@@ -79,19 +86,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-foreground">Welcome back</h2>
-        <p className="text-muted-foreground mt-2">
-          Sign in to your account to continue
-        </p>
-      </div>
+    <div>
+      <h1 className={authHeading}>Log in</h1>
+      <p className={authLead}>
+        Use Google, or the email and password you signed up with.
+      </p>
 
-      {/* Google Sign In */}
       <Button
         type="button"
         variant="outline"
-        className="w-full h-12 rounded-xl gap-3"
+        className={`mt-10 ${authGoogleButton}`}
         onClick={handleGoogleLogin}
         isLoading={isGoogleLoading}
       >
@@ -99,35 +103,24 @@ export default function LoginPage() {
         Continue with Google
       </Button>
 
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-background text-muted-foreground">
-            Or continue with email
-          </span>
-        </div>
+      <div className="my-6 flex items-center gap-4 text-sm text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        or with email
+        <span className="h-px flex-1 bg-border" />
       </div>
 
       <LoginForm
         adapter={adapter}
         onSuccess={() => router.push("/dashboard")}
+        classNames={authFormClassNames}
       />
 
-      {/* Sign up link */}
-      <div className="text-center">
-        <span className="text-muted-foreground">
-          Don&apos;t have an account?{" "}
-        </span>
-        <Link
-          href="/register"
-          className="text-primary font-semibold hover:underline"
-        >
-          Sign up
+      <p className="mt-8 text-[15px] text-muted-foreground">
+        New to CashGap?{" "}
+        <Link href="/register" className={authTextLink}>
+          Create an account
         </Link>
-      </div>
+      </p>
     </div>
   );
 }

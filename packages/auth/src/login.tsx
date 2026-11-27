@@ -1,15 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { Button, Input, PasswordInput } from "@repo/ui";
+import { Button, cn, Input, PasswordInput } from "@repo/ui";
 import { useAuth } from "./use-auth";
 
 export function LoginForm({
   onSuccess,
   adapter,
+  classNames,
 }: {
   onSuccess?: () => void;
   adapter?: any;
+  /** Optional style overrides; `error` replaces the default error box classes. */
+  classNames?: { error?: string; submit?: string };
 }) {
   const { loading, error, signIn } = useAuth({ adapter });
   const [email, setEmail] = React.useState("");
@@ -30,7 +33,13 @@ export function LoginForm({
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 text-red-600 dark:text-red-400">
+        <div
+          role="alert"
+          className={
+            classNames?.error ??
+            "p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 text-red-600 dark:text-red-400"
+          }
+        >
           <svg
             className="h-5 w-5 shrink-0 mt-0.5"
             viewBox="0 0 24 24"
@@ -64,7 +73,7 @@ export function LoginForm({
           type="submit"
           disabled={loading}
           isLoading={loading}
-          className="w-full h-12 rounded-xl"
+          className={cn("w-full h-12 rounded-xl", classNames?.submit)}
         >
           Sign in
         </Button>
