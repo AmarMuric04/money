@@ -83,23 +83,19 @@ export default function AccountSettingsPage() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <h2 className="text-lg font-semibold text-destructive">
-                Danger Zone
+                Delete data
               </h2>
             </div>
             <p className="text-sm text-muted-foreground">
-              Actions in this section are irreversible. Please proceed with
-              caution.
+              Both actions below are permanent and cannot be undone.
             </p>
 
             {/* Delete All Financial Data */}
             <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
-                  <Trash2 className="h-6 w-6 text-destructive" />
-                </div>
-                <div className="flex-1">
+              <div>
+                <div>
                   <h3 className="font-semibold text-foreground">
-                    Delete All Financial Data
+                    Delete all financial data
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     Permanently delete all your income, expenses, and
@@ -116,19 +112,16 @@ export default function AccountSettingsPage() {
                 className="w-full sm:w-auto"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete All Data
+                Delete all data
               </Button>
             </div>
 
-            {/* Delete Account */}
+            {/* Delete account */}
             <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10">
-                  <UserX className="h-6 w-6 text-destructive" />
-                </div>
-                <div className="flex-1">
+              <div>
+                <div>
                   <h3 className="font-semibold text-foreground">
-                    Delete Account
+                    Delete account
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     Permanently delete your account and all associated data.
@@ -144,20 +137,20 @@ export default function AccountSettingsPage() {
                 className="w-full sm:w-auto"
               >
                 <UserX className="h-4 w-4 mr-2" />
-                Delete Account
+                Delete account
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Delete All Data Modal */}
+        {/* Delete all data Modal */}
         <Modal
           isOpen={showDeleteDataModal}
           onClose={() => {
             setShowDeleteDataModal(false);
             setDeleteDataConfirmation("");
           }}
-          title="Delete All Financial Data"
+          title="Delete all financial data"
         >
           <div className="space-y-6">
             <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
@@ -204,20 +197,20 @@ export default function AccountSettingsPage() {
                 disabled={deleteDataConfirmation !== "DELETE"}
                 className="flex-1"
               >
-                Delete All Data
+                Delete all data
               </Button>
             </div>
           </div>
         </Modal>
 
-        {/* Delete Account Modal */}
+        {/* Delete account Modal */}
         <Modal
           isOpen={showDeleteAccountModal}
           onClose={() => {
             setShowDeleteAccountModal(false);
             setDeleteAccountConfirmation("");
           }}
-          title="Delete Account"
+          title="Delete account"
         >
           <div className="space-y-6">
             <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
@@ -264,7 +257,7 @@ export default function AccountSettingsPage() {
                 disabled={deleteAccountConfirmation !== "DELETE"}
                 className="flex-1"
               >
-                Delete Account
+                Delete account
               </Button>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, User, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Check } from "lucide-react";
 import { Button, Input, DashboardWrapper } from "@repo/ui";
 import Link from "next/link";
 import DashboardLayout from "@/components/dashboard-layout";
@@ -93,7 +93,7 @@ export default function ProfileSettingsPage() {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
-                  Profile Picture
+                  Profile picture
                 </h2>
                 <p className="text-sm text-muted-foreground mb-3">
                   Your avatar is generated from your name
@@ -104,25 +104,20 @@ export default function ProfileSettingsPage() {
 
           {/* Profile Form */}
           <div className="rounded-2xl border bg-card p-6 space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <User className="h-5 w-5 text-primary" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Personal Information
-              </h2>
-            </div>
+            <h2 className="mb-4 text-lg font-semibold text-foreground">
+              Personal information
+            </h2>
 
             <div className="space-y-4">
               <Input
-                label="Display Name"
+                label="Display name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
               />
 
               <Input
-                label="Email Address"
+                label="Email address"
                 value={email}
                 disabled
                 className="opacity-60"
@@ -146,7 +141,7 @@ export default function ProfileSettingsPage() {
                     Saved
                   </>
                 ) : (
-                  "Save Changes"
+                  "Save changes"
                 )}
               </Button>
             </div>

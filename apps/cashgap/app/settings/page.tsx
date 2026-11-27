@@ -3,16 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import {
-  User,
-  Download,
-  ChevronRight,
-  FileJson,
-  FileText,
-  LogOut,
-  Settings2,
-  Palette,
-} from "lucide-react";
+import { ChevronRight, FileJson, FileText } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
 import { Button, DashboardWrapper, Modal } from "@repo/ui";
 import { useFinanceStore } from "@/stores";
@@ -142,29 +133,25 @@ export default function SettingsPage() {
     {
       type: "link" as const,
       href: "/settings/profile",
-      icon: User,
       label: "Profile",
-      description: "Update your name and profile information",
+      description: "Change the name shown in the app",
     },
     {
       type: "link" as const,
       href: "/settings/account",
-      icon: Settings2,
       label: "Account",
-      description: "Manage your account and danger zone",
+      description: "Delete your data or your account",
     },
     {
       type: "action" as const,
       onClick: () => setShowExportModal(true),
-      icon: Download,
-      label: "Export Data",
+      label: "Export data",
       description: "Download your financial data as JSON or CSV",
     },
     {
       type: "action" as const,
       onClick: handleSignOut,
-      icon: LogOut,
-      label: "Sign Out",
+      label: "Sign out",
       description: "Sign out of your account",
     },
   ];
@@ -178,23 +165,18 @@ export default function SettingsPage() {
               Settings
             </h1>
             <p className="text-muted-foreground text-lg">
-              Manage your account and preferences
+              Theme, profile, export and account
             </p>
           </div>
 
           {/* Appearance Section */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-2 rounded-xl bg-muted">
-                  <Palette className="w-5 h-5 text-foreground" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Appearance</p>
-                  <p className="text-sm text-muted-foreground">
-                    Choose light, dark, or system theme
-                  </p>
-                </div>
+              <div>
+                <p className="font-medium text-foreground">Appearance</p>
+                <p className="text-sm text-muted-foreground">
+                  Choose light, dark, or system theme
+                </p>
               </div>
               <ThemeToggle />
             </div>
@@ -202,7 +184,6 @@ export default function SettingsPage() {
 
           <div className="space-y-2">
             {settingsItems.map((item) => {
-              const Icon = item.icon;
               const isDanger = "variant" in item && item.variant === "danger";
 
               if (item.type === "link") {
@@ -212,18 +193,13 @@ export default function SettingsPage() {
                     href={item.href}
                     className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-xl bg-muted">
-                        <Icon className="w-5 h-5 text-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {item.label}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
-                      </div>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {item.label}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
                   </Link>
@@ -240,14 +216,7 @@ export default function SettingsPage() {
                       : "border-border bg-card hover:bg-muted/50"
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`p-2 rounded-xl ${isDanger ? "bg-destructive/10" : "bg-muted"}`}
-                    >
-                      <Icon
-                        className={`w-5 h-5 ${isDanger ? "text-destructive" : "text-foreground"}`}
-                      />
-                    </div>
+                  <div>
                     <div>
                       <p
                         className={`font-medium ${isDanger ? "text-destructive" : "text-foreground"}`}
@@ -271,15 +240,15 @@ export default function SettingsPage() {
         <Modal
           isOpen={showExportModal}
           onClose={() => setShowExportModal(false)}
-          title="Export Financial Data"
+          title="Export your data"
         >
           <div className="space-y-6">
             <p className="text-sm text-muted-foreground">
-              Export all your income, expenses, and subscriptions data.
+              Download all your income, expenses and subscriptions.
             </p>
 
             <div className="space-y-3">
-              <label className="text-sm font-medium">Export Format</label>
+              <label className="text-sm font-medium">Format</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setExportFormat("json")}
