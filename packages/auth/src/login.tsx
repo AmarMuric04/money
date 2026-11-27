@@ -26,7 +26,11 @@ export function LoginForm({
       return; // Let HTML5 validation handle it
     }
 
-    await signIn({ email, password });
+    try {
+      await signIn({ email, password });
+    } catch {
+      return; // useAuth already stored the error, which is shown above the form
+    }
     onSuccess?.();
   };
 

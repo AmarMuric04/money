@@ -27,7 +27,11 @@ export function RegisterForm({
       return; // Let HTML5 validation handle it
     }
 
-    await signUp({ email, password });
+    try {
+      await signUp({ email, password });
+    } catch {
+      return; // useAuth already stored the error, which is shown above the form
+    }
     onSuccess?.();
   };
 
